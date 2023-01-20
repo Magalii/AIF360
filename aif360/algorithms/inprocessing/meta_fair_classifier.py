@@ -42,6 +42,7 @@ class MetaFairClassifier(Transformer):
             raise NotImplementedError("Only 'fdr' and 'sr' are supported yet.")
         self.seed = seed
 
+    #MetaFairClassifier(tau=0, sensitive_attr="sex", type="fdr").fit(dataset_orig_train)
     def fit(self, dataset):
         """Learns the fair classifier.
 
@@ -53,7 +54,7 @@ class MetaFairClassifier(Transformer):
         """
         if not self.sensitive_attr:
             self.sensitive_attr = dataset.protected_attribute_names[0]
-        sens_idx = dataset.protected_attribute_names.index(self.sensitive_attr)
+        sens_idx = dataset.protected_attribute_names.index(self.sensitive_attr) #index at which is sensitive_attr in the array of possible sensitive attributes
 
         x_train = dataset.features
         y_train = np.where(dataset.labels.flatten() == dataset.favorable_label,
@@ -62,6 +63,8 @@ class MetaFairClassifier(Transformer):
                 np.isin(dataset.protected_attributes[:, sens_idx],
                         dataset.privileged_protected_attributes[sens_idx]),
                 1, 0)
+                #isin returns boolean array indicating if the protected attributes has the value of the priviledged group
+                #x_control_train is boolean array indicating in which positions elements belong to priviledged group
 
         self.model = self.obj.getModel(self.tau, x_train, y_train,
             x_control_train, self.seed)
