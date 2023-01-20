@@ -36,6 +36,8 @@ class General(ABC):
     def num_params(self):
         raise NotImplementedError
 
+    #performs steps 2 of algo 1 in Celis et al
+    #chosen such that algo considers ratio metrics
     def range(self, eps, tau):
         a = np.arange(np.ceil(tau/eps), step=10) * eps
         b = (a + eps) / tau
@@ -49,6 +51,7 @@ class General(ABC):
     def init_params(self, i):
         return [i] * self.num_params
 
+    #dist = multivariate_normal(mean, cov, allow_singular=True, seed=random_state)
     def gradientDescent(self, dist, a, b, samples, z_prior):
         """Gradient Descent implementation for the optimizing the objective
         function.
@@ -74,29 +77,36 @@ class General(ABC):
     def prob(self, dist, x):
         return dist.pdf(x)
 
+    #getModel(self.tau, x_train, y_train, x_control_train, self.seed)
+    # tau : fairness parameter
+    # X: features of training set (x_train)
+    # y: labels of training set (y_train)
+    # x_control_train: boolean array indicating in which positions elements belong to priviledged group
     def getModel(self, tau, X, y, sens, random_state=None):
         """Returns the model given the training data and input tau."""
-        train = np.c_[X, y, sens]
-        mean = np.mean(train, axis=0)
-        cov = np.cov(train, rowvar=False)
+        
+        #1. Compute an estimated distribution dist on X,y,sens
+        train = np.c_[X, y, sens] #Translates slice objects to concatenation along the second axis [[X_1, y_1, sens_1],...,[X_n, y_n, sens_n]]
+        mean = np.mean(train, axis=0) #1D array
+        cov = np.cov(train, rowvar=False) #Covariance matrix
         dist = multivariate_normal(mean, cov, allow_singular=True,
-                                   seed=random_state)
+                                   seed=random_state) #multivariate normal random variable with fixed mean and covariance based on X, y and sens
         n = X.shape[1]
         dist_x = multivariate_normal(mean[:n], cov[:n, :n], allow_singular=True,
-                                     seed=random_state)
+                                     seed=random_state) #multivariate normal random variable with fixed mean and covariance based on X training features only
 
-        eps = 0.01
+        eps = 0.01 #error parameter
         z_1 = np.mean(sens)
-        params_opt = [0] * self.num_params
+        params_opt = [0] * self.num_params #array of size num_params, defined for each metric type
         max_acc = 0
         p, q = 0, 0
 
         if tau != 0:
-            for a, b in self.range(eps, tau):
-                samples = dist_x.rvs(size=20)  # TODO: why 20?
+            for a, b in self.range(eps, tau): #2. T <- /tau/eps\. For each a_i <- (i-1)*eps and b_i <- i*eps/tau
+                samples = dist_x.rvs(size=20)  # TODO: why 20?  #Draw random samples from the multivariate normal distribution based on features
                 params = self.gradientDescent(dist, a, b, samples, z_1)
 
-                t = self.getValueForX(dist, a, b, params, z_1, X)
+                t = self.getValueForX(dist, a, b, params, z_1, X) #Probably impact for ratio instead of difference
                 y_pred = np.where(t > 0, 1, -1)
 
                 acc = accuracy_score(y, y_pred)
