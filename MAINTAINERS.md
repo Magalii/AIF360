@@ -17,7 +17,7 @@ The maintainers are listed in alphabetical order.
 
 This repository does not have a traditional release management cycle, but
 should instead be maintained as a useful, working, and polished reference at
-all times. While all work can therefore be focused on the master branch, the
+all times. While all work can therefore be focused on the main branch, the
 quality of this branch should never be compromised.
 
 The remainder of this document details how to merge pull requests to the
@@ -64,7 +64,7 @@ request for them, and feel free to close the pull request once they confirm.
 
 ### Does the change introduce a new feature?
 
-For any given pull request, ask yourself "is this a new feature?" If so, does
+For any given pull request, ask yourself "Is this a new feature?" If so, does
 the pull request (or associated issue) contain narrative indicating the need
 for the feature? If not, ask them to provide that information.
 
