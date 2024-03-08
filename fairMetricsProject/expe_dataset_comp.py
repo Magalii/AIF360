@@ -1,0 +1,92 @@
+#import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import pickle
+
+"""
+from sklearn import metrics
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.feature_selection import SelectKBest
+from sklearn.metrics import roc_auc_score, classification_report, make_scorer, accuracy_score, precision_recall_fscore_support as score
+from sklearn.metrics import pair_confusion_matrix
+"""
+from sklearn.preprocessing import MaxAbsScaler
+from sklearn.ensemble import RandomForestClassifier
+
+import sys 
+sys.path.append('../parent_aif360/')
+from aif360.algorithms.inprocessing import MetaFairClassifier
+from aif360.metrics.classification_metric import ClassificationMetric
+from aif360.metrics.binary_label_dataset_metric import BinaryLabelDatasetMetric
+
+#import from within fairMetricsProject
+from fairMetricsProject.dataset_custom.data_custom_preproc import load_custom_compas, load_custom_adult
+from fairMetricsProject.dataset_custom.student_dataset import StudentDataset
+from fairMetricsProject.expe_meta_helper import run_expe_meta
+from fairMetricsProject.expe_meta_helper import plot_result
+
+np.random.seed(12345)
+
+TRAIN = True
+PLOT = True
+SAVE_PLOT = True
+SHOW_PLOT = True
+TYPE = 'sr'
+
+################
+## Experiment ##
+################
+#print("\n--- data ---\n")
+path_datasets = 'fairMetricsProject/DatasetsRaw/'
+path_result = 'fairMetricsProject/Results/'
+
+str_student =  'student'
+#data_orig_student = StudentDataset()
+str_compas = 'compas'
+#data_orig_compas = load_custom_compas()
+str_adult = 'adult'
+#data_orig_adult = load_custom_adult()
+#data_orig = load_custom_adult(path=path_datasets)
+#data_name = 'adult'
+data_orig = load_custom_compas(path=path_datasets)
+data_name = 'compas'
+#data_orig = StudentDataset()
+#data_name = 'student'
+
+# defining metadata in dictionnaries
+metadata_student = {
+    'unprivileged_metadata_prot': {
+        'unprivileged':{'sex':'male'},
+        'privileged':{'sex':'female'}
+            },
+            'unprivileged_metadata_label': {
+                'unfavorable':'fail',
+                'favorable':'pass'}
+            }
+
+unprivileged_metadata_prot = {
+        'unprivileged':{'sex':'male'},
+        'privileged':{'sex':'female'}
+            },
+unprivileged_metadata_label = {'unfavorable':'fail',
+                'favorable':'pass'}
+
+path_result = 'fairMetricsProject/Results/'
+
+
+if TRAIN :
+  print("\n--- experiment ---\n")
+  taus = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
+  #taus =  [0.0, 0.3, 0.8]
+  results = run_expe_meta(data_orig, 10, taus, [TYPE])
+  print(results)
+
+  with open(path_result+'expe_comp_'+data_name+'_'+TYPE+'.pkl', 'wb') as f :
+      pickle.dump(results, f)
+
+if PLOT :
+  file_res_student = path_result+'expe_comp_'+data_name+'_'+TYPE+'.pkl'
+  file_plot = path_result + '/Plots/plot_'+data_name
+  plot_result(file_res_student, title = data_name,save = SAVE_PLOT, plot_file = file_plot, display = SHOW_PLOT)
+
+
