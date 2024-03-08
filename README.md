@@ -1,9 +1,9 @@
 # AI Fairness 360 (AIF360)
 
 [![Continuous Integration](https://github.com/Trusted-AI/AIF360/actions/workflows/ci.yml/badge.svg)](https://github.com/Trusted-AI/AIF360/actions/workflows/ci.yml)
-[![Documentation](https://readthedocs.org/projects/aif360/badge/?version=latest)](http://aif360.readthedocs.io/en/latest/?badge=latest)
+[![Documentation](https://readthedocs.org/projects/aif360/badge/?version=latest)](https://aif360.readthedocs.io/en/latest/?badge=latest)
 [![PyPI version](https://badge.fury.io/py/aif360.svg)](https://badge.fury.io/py/aif360)
-[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/aif360)](https://cran.r-project.org/package=aif360)
+[![CRAN\_Status\_Badge](https://www.r-pkg.org/badges/version/aif360)](https://cran.r-project.org/package=aif360)
 
 The AI Fairness 360 toolkit is an extensible open-source library containing techniques developed by the
 research community to help detect and mitigate bias in machine learning models throughout the AI application lifecycle. AI Fairness 360 package is available in both Python and R.
@@ -15,7 +15,7 @@ The AI Fairness 360 package includes
 It is designed to translate algorithmic research from the lab into the actual practice of domains as wide-ranging
 as finance, human capital management, healthcare, and education. We invite you to use it and improve it.
 
-The [AI Fairness 360 interactive experience](http://aif360.mybluemix.net/data)
+The [AI Fairness 360 interactive experience](https://aif360.res.ibm.com/data)
 provides a gentle introduction to the concepts and capabilities. The [tutorials
 and other notebooks](./examples) offer a deeper, data scientist-oriented
 introduction. The complete API is also available.
@@ -23,7 +23,7 @@ introduction. The complete API is also available.
 Being a comprehensive set of capabilities, it may be confusing to figure out
 which metrics and algorithms are most appropriate for a given use case. To
 help, we have created some [guidance
-material](http://aif360.mybluemix.net/resources#guidance) that can be
+material](https://aif360.res.ibm.com/resources#guidance) that can be
 consulted.
 
 We have developed the package with extensibility in mind. This library is still
@@ -76,9 +76,9 @@ Supported Python Configurations:
 
 | OS      | Python version |
 | ------- | -------------- |
-| macOS   | 3.7 – 3.10     |
-| Ubuntu  | 3.7 – 3.10     |
-| Windows | 3.7 – 3.10     |
+| macOS   | 3.8 – 3.11     |
+| Ubuntu  | 3.8 – 3.11     |
+| Windows | 3.8 – 3.11     |
 
 ### (Optional) Create a virtual environment
 
@@ -95,10 +95,10 @@ is sufficient (see [the difference between Anaconda and
 Miniconda](https://conda.io/docs/user-guide/install/download.html#anaconda-or-miniconda)
 if you are curious) if you do not already have conda installed.
 
-Then, to create a new Python 3.7 environment, run:
+Then, to create a new Python 3.11 environment, run:
 
 ```bash
-conda create --name aif360 python=3.7
+conda create --name aif360 python=3.11
 conda activate aif360
 ```
 
@@ -109,9 +109,6 @@ The shell should now look like `(aif360) $`. To deactivate the environment, run:
 ```
 
 The prompt will return to `$ `.
-
-Note: Older versions of conda may use `source activate aif360` and `source
-deactivate` (`activate aif360` and `deactivate` on Windows).
 
 ### Install with `pip`
 
@@ -136,7 +133,8 @@ pip install 'aif360[all]'
 ```
 
 The options for available extras are: `OptimPreproc, LFR, AdversarialDebiasing,
-DisparateImpactRemover, LIME, ART, Reductions, notebooks, tests, docs, all`
+DisparateImpactRemover, LIME, ART, Reductions, FairAdapt, inFairness,
+LawSchoolGPA, notebooks, tests, docs, all`
 
 If you encounter any errors, try the [Troubleshooting](#troubleshooting) steps.
 

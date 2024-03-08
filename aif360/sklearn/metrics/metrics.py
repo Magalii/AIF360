@@ -1,4 +1,6 @@
 from itertools import permutations
+from typing import Union
+import warnings
 
 import numpy as np
 import pandas as pd
@@ -8,35 +10,12 @@ from sklearn.metrics import multilabel_confusion_matrix
 from sklearn.metrics._classification import _prf_divide, _check_zero_division
 from sklearn.neighbors import NearestNeighbors
 from sklearn.utils import check_X_y
-from sklearn.utils.deprecation import deprecated
 
+from aif360.metrics import ot_metric
 from aif360.sklearn.utils import check_inputs, check_groups
 from aif360.detectors.mdss.ScoringFunctions import BerkJones, Bernoulli
 from aif360.detectors.mdss.MDSS import MDSS
 
-__all__ = [
-    # meta-metrics
-    'difference', 'ratio', 'intersection', 'one_vs_rest',
-    # scorer factory
-    'make_scorer',
-    # helpers
-    'num_samples', 'num_pos_neg',
-    'specificity_score', 'base_rate', 'selection_rate', 'smoothed_base_rate',
-    'smoothed_selection_rate', 'generalized_fpr', 'generalized_fnr',
-    # group fairness
-    'statistical_parity_difference', 'disparate_impact_ratio',
-    'equal_opportunity_difference', 'average_odds_difference', 'average_predictive_value_difference',
-    'average_odds_error', 'class_imbalance', 'kl_divergence',
-    'conditional_demographic_disparity', 'smoothed_edf',
-    'df_bias_amplification', 'mdss_bias_scan', 'mdss_bias_score',
-    # individual fairness
-    'generalized_entropy_index', 'generalized_entropy_error',
-    'between_group_generalized_entropy_error', 'theil_index',
-    'coefficient_of_variation', 'consistency_score',
-    # aliases
-    'sensitivity_score', 'mean_difference', 'false_negative_rate_error',
-    'false_positive_rate_error'
-]
 
 # ============================= META-METRICS ===================================
 def difference(func, y_true, y_pred=None, prot_attr=None, priv_group=1,
@@ -499,6 +478,63 @@ def generalized_fnr(y_true, probas_pred, *, pos_label=1, sample_weight=None,
 
 
 # ============================ GROUP FAIRNESS ==================================
+def ot_distance(
+    y_true: pd.Series,
+    y_pred: Union[pd.Series, pd.DataFrame],
+    prot_attr: pd.Series = None,
+    pos_label: Union[str, float] = None,
+    scoring: str = "Wasserstein1",
+    num_iters: int = 1e5,
+    penalty: float = 1e-17,
+    mode: str = "binary",
+    cost_matrix: np.ndarray=None,
+    **kwargs,
+):
+    """Normalize and calculate Wasserstein distance between groups defined by `prot_attr` in `y_true` and `y_pred`.
+
+    Args:
+        y_true (pd.Series): ground truth (correct) target values.
+        y_pred (pd.Series, pd.DataFrame): estimated target values.
+            If `mode` is nominal, must be a `pd.DataFrame` with columns containing predictions for each nominal class,
+                or list of corresponding column names in `data`.
+            If `None`, model is assumed to be a dummy model that predicts the mean of the targets
+                or 1/(number of categories) for nominal mode.
+        prot_attr (pd.Series): sensitive attribute values.
+            If `None`, assume all samples belong to the same protected group.
+        pos_label(str, float, optional): Either "high", "low" or a float value if the mode in [binary, ordinal, or continuous].
+                If float, value has to be the minimum or the maximum in the ground_truth column.
+                Defaults to high if None for these modes.
+                Support for float left in to keep the intuition clear in binary classification tasks.
+                If `mode` is nominal, favorable values should be one of the unique categories in the ground_truth.
+                Defaults to a one-vs-all scan if None for nominal mode.
+        scoring (str or class): only 'Wasserstein1'
+        num_iters (int, optional): number of iterations (random restarts) for EMD. Should be positive.
+        penalty (float, optional): penalty term. Should be positive. The penalty term as with any regularization parameter
+            may need to be tuned for a particular use case. The higher the penalty, the higher the influence of entropy regualizer.
+        mode: one of ['binary', 'continuous', 'nominal', 'ordinal']. Defaults to binary.
+                In nominal mode, up to 10 categories are supported by default.
+                To increase this, pass in keyword argument max_nominal = integer value.
+        cost_matrix (np.ndarray): cost matrix for the Wasserstein distance. Defaults to absolute difference between samples.
+
+    Returns:
+        ot.emd2 (float, dict): Earth mover's distance or dictionary of optimal transports for each of option of classifier
+
+    Raises:
+        ValueError: if `mode` is 'binary' but `ground_truth` contains less than 1 or more than 2 unique values.
+    """
+    return ot_metric.ot_distance(
+        ground_truth=y_true,
+        classifier=y_pred,
+        prot_attr=prot_attr,
+        favorable_value=pos_label,
+        scoring=scoring,
+        num_iters=num_iters,
+        penalty=penalty,
+        mode=mode,
+        cost_matrix=cost_matrix,
+        **kwargs
+    )
+
 def statistical_parity_difference(y_true, y_pred=None, *, prot_attr=None,
                                   priv_group=1, pos_label=1, sample_weight=None):
     r"""Difference in selection rates.
@@ -886,7 +922,7 @@ def df_bias_amplification(y_true, y_pred, *, prot_attr=None, pos_label=1,
     return eps_pred - eps_true
 
 def mdss_bias_score(y_true, probas_pred, X=None, subset=None, *, pos_label=1,
-                    scoring='Bernoulli', privileged=True, penalty=1e-17,
+                    scoring='Bernoulli', overpredicted=True, penalty=1e-17,
                     **kwargs):
     """Compute the bias score for a prespecified group of records using a
     given scoring function.
@@ -906,10 +942,14 @@ def mdss_bias_score(y_true, probas_pred, X=None, subset=None, *, pos_label=1,
         scoring (str or class): One of 'Bernoulli' or 'BerkJones' or
             subclass of
             :class:`aif360.metrics.mdss.ScoringFunctions.ScoringFunction`.
-        privileged (bool): Flag for which direction to scan: privileged
-            (``True``) implies negative (observed worse than predicted outcomes)
-            while unprivileged (``False``) implies positive (observed better
-            than predicted outcomes).
+        overpredicted (bool): Flag for which direction to scan: `True` means we
+            scan for a group whose expectations/predictions are systematically
+            higher than observed. In other words, we scan for a group whose
+            observed is systematically lower than the expectations. `False`
+            means we scan for a group whose expectations/predictions are
+            systematically lower than observed (observed is systematically
+            higher than the expectations).
+        privileged (bool): Deprecated. Use overpredicted instead.
         penalty (scalar): Penalty coefficient. Should be positive. The higher
             the penalty, the less complex (number of features and feature
             values) the highest scoring subset that gets returned is.
@@ -931,7 +971,12 @@ def mdss_bias_score(y_true, probas_pred, X=None, subset=None, *, pos_label=1,
     expected = pd.Series(probas_pred).reset_index(drop=True)
     outcomes = pd.Series(y_true == pos_label, dtype=int).reset_index(drop=True)
 
-    direction = 'negative' if privileged else 'positive'
+    # TODO: DEPRECATED. Remove in next version.
+    if 'privileged' in kwargs:
+        warnings.warn("privileged is deprecated. Use overpredicted instead.",
+                      category=FutureWarning)
+        overpredicted = kwargs['privileged']
+    direction = 'negative' if overpredicted else 'positive'
     kwargs['direction'] = direction
 
     if scoring == 'Bernoulli':
@@ -943,72 +988,6 @@ def mdss_bias_score(y_true, probas_pred, X=None, subset=None, *, pos_label=1,
     scanner = MDSS(scoring_function)
 
     return scanner.score_current_subset(X, expected, outcomes, subset or {}, penalty)
-
-@deprecated('Change to new interface - aif360.sklearn.detectors.mdss_detector.bias_scan by version 0.5.0.')
-def mdss_bias_scan(y_true, probas_pred, X=None, *, pos_label=1,
-                   scoring='Bernoulli', privileged=True, n_iter=10,
-                   penalty=1e-17, **kwargs):
-    """Scan to find the highest scoring subset of records.
-
-    Bias scan is a technique to identify bias in predictive models using subset
-    scanning [#zhang16]_.
-
-    Args:
-        y_true (array-like): Ground truth (correct) target values.
-        probas_pred (array-like): Probability estimates of the positive class.
-        X (dataframe, optional): The dataset (containing the features) that was
-            used to predict `probas_pred`. If not specified, the subset is
-            returned as indices.
-        pos_label (scalar): Label of the positive class.
-        scoring (str or class): One of 'Bernoulli' or 'BerkJones' or
-            subclass of
-            :class:`aif360.metrics.mdss.ScoringFunctions.ScoringFunction`.
-        privileged (bool): Flag for which direction to scan: privileged
-            (``True``) implies negative (observed worse than predicted outcomes)
-            while unprivileged (``False``) implies positive (observed better
-            than predicted outcomes).
-        n_iter (scalar): Number of iterations (random restarts).
-        penalty (scalar): Penalty coefficient. Should be positive. The higher
-            the penalty, the less complex (number of features and feature
-            values) the highest scoring subset that gets returned is.
-        **kwargs: Additional kwargs to be passed to `scoring` (not including
-            `direction`).
-
-    Returns:
-        tuple:
-            Highest scoring subset and its bias score
-
-            * **subset** (dict) -- Mapping of features to values defining the
-              highest scoring subset.
-            * **score** (float) -- Bias score for that group.
-
-    See also:
-        :func:`mdss_bias_score`
-
-    References:
-        .. [#zhang16] `Zhang, Z. and Neill, D. B., "Identifying significant
-           predictive bias in classifiers," arXiv preprint, 2016.
-           <https://arxiv.org/abs/1611.08292>`_
-    """
-    if X is None:
-        X = pd.DataFrame({'index': range(len(y_true))})
-    else:
-        X = X.reset_index(drop=True)  # match all indices
-
-    expected = pd.Series(probas_pred).reset_index(drop=True)
-    outcomes = pd.Series(y_true == pos_label, dtype=int).reset_index(drop=True)
-
-    direction = 'negative' if privileged else 'positive'
-    kwargs['direction'] = direction
-    if scoring == 'Bernoulli':
-        scoring_function = Bernoulli(**kwargs)
-    elif scoring == 'BerkJones':
-        scoring_function = BerkJones(**kwargs)
-    else:
-        scoring_function = scoring(**kwargs)
-    scanner = MDSS(scoring_function)
-
-    return scanner.scan(X, expected, outcomes, penalty, n_iter)
 
 
 # ========================== INDIVIDUAL FAIRNESS ===============================
