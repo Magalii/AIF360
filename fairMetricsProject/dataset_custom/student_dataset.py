@@ -13,9 +13,12 @@ df_student_all = pd.read_pickle(datasets+"student_df")
 
 default_mappings = {
     'label_maps': [{1.0: 'pass', 0.0: 'fail'}],  #TODO check if it works
-    'protected_attribute_maps': [{1.0: 'female', 0.0: 'male'}] #'sex'
+    'protected_attribute_maps': [{1.0: 'female', 0.0: 'male'},
+                                 {1.0: '<=18', 0.0: '>18'}] #'sex'
                                  #{blablabla}] #'age', numerical from 15 to 22 -> TODO see if it has been binarized
 }
+{"sex": {1.0: 'M', 0.0: 'F'},
+                                    "age": {1.0: '<=18', 0.0: '>18'}}    
 
 class StudentDataset(StandardDataset):
     """Student Performance UCI dataset
@@ -30,7 +33,7 @@ class StudentDataset(StandardDataset):
                  privileged_classes=[['M']],
                  instance_weights_name=None,
                  categorical_features=['school','address','Pstatus', 'Mjob', 'Fjob', 'guardian', 'famsize', 'reason','schoolsup','famsup','activities','paid','internet','nursery','higher','romantic'],
-                 features_to_keep=[], features_to_drop=[],
+                 features_to_keep=[], features_to_drop=[],#['G1','G2']
                  na_values=[], custom_preprocessing=None,
                  metadata=default_mappings):
         #See :obj:`StandardDataset` for a description of the arguments.

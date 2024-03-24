@@ -114,8 +114,10 @@ def run_expe_meta(dataset_orig, folds, tau_range = tau_def, mitig_types = ['sr',
             #hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['error_rate_ratio'] = classified_metric_bias_test.error_rate_ratio()
             #difference metrics
             hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['Stat. parity'] = classified_metric_bias_test.statistical_parity_difference()
-            #hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['Eq. odds'] = classified_metric_bias_test.equalized_odds_difference()
+            hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['Eq. odds'] = classified_metric_bias_test.equalized_odds_difference()
             hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['Eq. opportunity'] = classified_metric_bias_test.equal_opportunity_difference()
+            hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['Consistency'] = classified_metric_bias_test.consistency()
+
 
             #hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['avg_odds_diff'] = classified_metric_bias_test.average_abs_odds_difference()
 
@@ -180,7 +182,8 @@ def plot_result(data_file, title, save = False, plot_file = None, display = True
         all_tau = [float(tau[-3:]) for tau in means_per_tau.index.values]
 
         for metric in metrics_list :
-           plt.plot(all_tau,means_per_tau[metric],label = str(metric),linestyle="--",marker="o")
+           if metric != "DP_ratio":
+            plt.plot(all_tau,means_per_tau[metric],label = str(metric),linestyle="--",marker="o")
         """
         plt.plot(all_tau, accuracies, label = 'Metaclassifier accuracy', linestyle="--",marker="o")
         plt.plot(all_tau, statistical_rates, label = 'Demographic parity', linestyle="--",marker="o", c='grey')
@@ -189,14 +192,14 @@ def plot_result(data_file, title, save = False, plot_file = None, display = True
         """
         plt.xlabel(r'$\tau$', size=14)
         plt.tick_params(labelsize = 'large',which='major')
-        #plt.ylim(bottom=0,top=1)
+        plt.ylim(bottom=-0.4,top=1.4)
         #plt.title('Protected att.:'+ticker[1]+' with '+ticker[0]+' constraint', fontsize=14)
-        plt.title(title)
+        #plt.title(title)
         plt.legend(prop={'size':14})
         plt.grid(visible=True)
 
         if(save) :
-            plt.savefig(plot_file+'_'+ticker[1]+"_.pdf", format="pdf", bbox_inches="tight")
+            plt.savefig(plot_file+'_'+ticker[1]+'_'+ticker[0]+".pdf", format="pdf", bbox_inches="tight")
         #plt.suptitle('Accuracy and metrics for '+case_study+' with '+str(folds)+'fold cross-validation', y=0.95, fontsize='xx-large', fontweight='bold')
         if(display) :
             plt.show()

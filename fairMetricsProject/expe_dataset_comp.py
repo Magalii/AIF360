@@ -24,6 +24,8 @@ from fairMetricsProject.dataset_custom.data_custom_preproc import load_custom_co
 from fairMetricsProject.dataset_custom.student_dataset import StudentDataset
 from fairMetricsProject.expe_meta_helper import run_expe_meta
 from fairMetricsProject.expe_meta_helper import plot_result
+from fairMetricsProject.dataset_custom.new_preproc_function import load_preproc_data_student
+
 
 np.random.seed(12345)
 
@@ -44,32 +46,18 @@ str_student =  'student'
 #data_orig_student = StudentDataset()
 str_compas = 'compas'
 #data_orig_compas = load_custom_compas()
-str_adult = 'adult'
+#str_adult = 'adult'
 #data_orig_adult = load_custom_adult()
 #data_orig = load_custom_adult(path=path_datasets)
 #data_name = 'adult'
-data_orig = load_custom_compas(path=path_datasets)
-data_name = 'compas'
-#data_orig = StudentDataset()
-#data_name = 'student'
+#data_orig = load_custom_compas(path=path_datasets)
+#data_name = 'compas'
+#data_orig = StudentDataset() #Standard preproc -> age numerical
+ata_name = 'student'
+data_orig = load_preproc_data_student() #Custom preproc -> age binary
+data_name = 'student_agebin'
 
-# defining metadata in dictionnaries
-metadata_student = {
-    'unprivileged_metadata_prot': {
-        'unprivileged':{'sex':'male'},
-        'privileged':{'sex':'female'}
-            },
-            'unprivileged_metadata_label': {
-                'unfavorable':'fail',
-                'favorable':'pass'}
-            }
-
-unprivileged_metadata_prot = {
-        'unprivileged':{'sex':'male'},
-        'privileged':{'sex':'female'}
-            },
-unprivileged_metadata_label = {'unfavorable':'fail',
-                'favorable':'pass'}
+print(data_orig)
 
 path_result = 'fairMetricsProject/Results/'
 

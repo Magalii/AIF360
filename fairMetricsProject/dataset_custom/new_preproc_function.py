@@ -8,21 +8,33 @@ from fairMetricsProject.dataset_custom.student_dataset import StudentDataset
 
 
 def load_preproc_data_student(protected_attributes=None, sub_samp=False, balance=False):
-    #This preprocessing only considers sex as the protected_attributes
     def custom_preprocessing(df):
-        #transformer les yes et no en bouleen numérique
+        #TODO transformer les yes et no en bouleen numérique
+
+        def group_age(x):
+            if x <=18:
+                return 1.0
+            else :
+                return 0.0
+        df['age'] = df['age'].apply(lambda x:  group_age(x))
         return df
+    
+    D_features = ['sex', 'age'] if protected_attributes is None else protected_attributes
 
-    all_privileged_classes = {"sex": [1.0]}
-
-    metadata = {
-    'label_maps': [{1.0: 'pass', 0.0: 'fail'}], 
-    'protected_attribute_maps': [{1: 'female', 0: 'male'}] #'sex'
-                                 #{blablabla}] #'age', numerical from 15 to 22 -> TODO see if it has been binarized
-    }
     # privileged classes
-    return StudentDataset()
-        #privileged_classes = all_privileged_classes["sex"],
-        #custom_preprocessing = custom_preprocessing)
-        
-        #metadata=metadata)
+    all_privileged_classes = {"sex": [1.0], "age": [1.0]}
+
+    # protected attribute maps
+    all_protected_attribute_maps = {"sex": {1.0: 'M', 0.0: 'F'},
+                                    "age": {1.0: '<=18', 0.0: '>18'}}    
+
+    metadata_preproc = {'label_maps': [{1.0: 'pass', 0.0: 'fail'}], 
+                        'protected_attribute_maps': [all_protected_attribute_maps[x]
+                                for x in D_features]}
+
+    return StudentDataset(
+        protected_attribute_names=D_features,
+        privileged_classes = [['M'],[1.0]],
+        custom_preprocessing=custom_preprocessing,
+        metadata=metadata_preproc)
+        #privileged_classes = [all_privileged_classes[x] for x in D_features],
