@@ -42,25 +42,15 @@ TYPE = 'sr'
 path_datasets = 'fairMetricsProject/DatasetsRaw/'
 path_result = 'fairMetricsProject/Results/'
 
-str_student =  'student'
-#data_orig_student = StudentDataset()
-str_compas = 'compas'
-#data_orig_compas = load_custom_compas()
-#str_adult = 'adult'
-#data_orig_adult = load_custom_adult()
 #data_orig = load_custom_adult(path=path_datasets)
 #data_name = 'adult'
 #data_orig = load_custom_compas(path=path_datasets)
 #data_name = 'compas'
 #data_orig = StudentDataset() #Standard preproc -> age numerical
-ata_name = 'student'
+#data_name = 'student'
 data_orig = load_preproc_data_student() #Custom preproc -> age binary
-data_name = 'student_agebin'
-
-print(data_orig)
-
-path_result = 'fairMetricsProject/Results/'
-
+#data_name = 'student_agebin'
+data_name = 'student_bin18_F1'
 
 if TRAIN :
   print("\n--- experiment ---\n")
@@ -75,6 +65,6 @@ if TRAIN :
 if PLOT :
   file_res_student = path_result+'expe_comp_'+data_name+'_'+TYPE+'.pkl'
   file_plot = path_result + '/Plots/plot_'+data_name
-  plot_result(file_res_student, title = data_name,save = SAVE_PLOT, plot_file = file_plot, display = SHOW_PLOT)
+  plot_result(file_res_student,save = SAVE_PLOT, plot_file = file_plot, display = SHOW_PLOT)
 
-
+#print(data_orig)

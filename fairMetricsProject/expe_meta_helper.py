@@ -8,6 +8,7 @@ from aif360.algorithms.inprocessing import MetaFairClassifier
 from aif360.metrics.classification_metric import ClassificationMetric
 from aif360.metrics.binary_label_dataset_metric import BinaryLabelDatasetMetric
 from sklearn.preprocessing import MaxAbsScaler
+from sklearn.metrics import f1_score
 
 tau_def = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 mitig_def = ['sr', 'fdr']
@@ -108,16 +109,18 @@ def run_expe_meta(dataset_orig, folds, tau_range = tau_def, mitig_types = ['sr',
 
             #Accuracy
             hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['accuracy'] = classified_metric_bias_test.accuracy()
+            #F1 score : sklearn.metrics.f1_score(y_true, y_pred, *, labels=None, pos_label=1, average='binary', sample_weight=None, zero_division='warn')
+            f1 = f1_score(dataset_orig_test.labels,dataset_bias_test.labels)
+            hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['F1 score'] = f1
             #ratios metrics
             #hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['FDR'] = fdr
-            #hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['DP_ratio'] = dpratio
+            hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['DP_ratio'] = dpratio
             #hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['error_rate_ratio'] = classified_metric_bias_test.error_rate_ratio()
             #difference metrics
             hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['Stat. parity'] = classified_metric_bias_test.statistical_parity_difference()
             hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['Eq. odds'] = classified_metric_bias_test.equalized_odds_difference()
             hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['Eq. opportunity'] = classified_metric_bias_test.equal_opportunity_difference()
             hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['Consistency'] = classified_metric_bias_test.consistency()
-
 
             #hp_results[mitigation_type][s_attr]['Fold'+str(fold)]['Tau'+str(tau)]['avg_odds_diff'] = classified_metric_bias_test.average_abs_odds_difference()
 
@@ -127,7 +130,7 @@ def run_expe_meta(dataset_orig, folds, tau_range = tau_def, mitig_types = ['sr',
 
   return hp_results
 
-def plot_result(data_file, title, save = False, plot_file = None, display = True) :
+def plot_result(data_file, save = False, plot_file = None, display = True) :
     """
     file_name : file containing a dictionnary as returned by run_exp_meta
     """
@@ -171,6 +174,10 @@ def plot_result(data_file, title, save = False, plot_file = None, display = True
 
         means_per_tau = pd.DataFrame(index=results_dict[valid_mitig][valid_s_attr][valid_metric].columns,
                                     columns = results_dict[valid_mitig][valid_s_attr].keys())
+        
+        #std_per_tau = ...
+        #Standard deviation here ?
+        #confidence interval has been computed in Python Notebooks/Results.ipynb
 
         for metric in metrics_list:
             #print(metric, all_metrics[valid_mitig][valid_s_attr][metric].mean(axis=0), end = '')
@@ -181,22 +188,45 @@ def plot_result(data_file, title, save = False, plot_file = None, display = True
         #accuracies, statistical_rates, fdr, error_rate_ratio = means_per_tau['accuracy'].values, means_per_tau['DP'].values, means_per_tau['FDR'].values, means_per_tau['error_rate_ratio']
         all_tau = [float(tau[-3:]) for tau in means_per_tau.index.values]
 
-        for metric in metrics_list :
-           if metric != "DP_ratio":
-            plt.plot(all_tau,means_per_tau[metric],label = str(metric),linestyle="--",marker="o")
+        fig, ax = plt.subplots(figsize=(8, 4))
+        ax.hlines(0,0,1,colors='black')
+
+        # Use this block instead of the following one to automate plotting
         """
-        plt.plot(all_tau, accuracies, label = 'Metaclassifier accuracy', linestyle="--",marker="o")
-        plt.plot(all_tau, statistical_rates, label = 'Demographic parity', linestyle="--",marker="o", c='grey')
-        plt.plot(all_tau, fdr, label = 'False Discovery Rate', linestyle="--",marker="o", c='green')
-        plt.plot(all_tau, error_rate_ratio, label = 'error_rate_ratio', linestyle="--",marker="o", c='salmon')
+        #for metric in metrics_list :
+          #if metric != "DP_ratio":
+          #  plt.plot(all_tau,means_per_tau[metric],label = str(metric),linestyle="--",marker="o")
+        plt.style.use('tableau-colorblind10')
+        """
+
+        ax.plot(all_tau, means_per_tau['accuracy'], label = 'Accuracy', linestyle="--",marker="o", color='#ABABAB')##Dark gray
+        ax.plot(all_tau, means_per_tau['F1 score'], label = 'F1', linestyle="--",marker="o", color='#595959')##Dark gray
+        ax.plot(all_tau, means_per_tau['Consistency'], label = 'Consistency', linestyle="--",marker="^", color="#006BA4")#Cerulean/Blue
+        ax.plot(all_tau, means_per_tau['Eq. odds'], label = 'Eq. Odds', linestyle="--",marker="X", c='#C85200')#Tenne/Dark orange
+        ax.plot(all_tau, means_per_tau['Eq. opportunity'], label = 'Eq. Opp', linestyle="--",marker="d", c="#FF800E")#Pumpkin/Bright orange
+        ax.plot(all_tau, means_per_tau['Stat. parity'], label = 'SR', linestyle="--",marker="s", c="#A2C8EC")#Seil/Light blue
+        #'#FFBC79' Light orange/Mac and chesse '#898989'#Suva Grey/Light Gray '#ABABAB'#Dark gray '#595959'#Mortar/Darker Grey
+        #https://stackoverflow.com/questions/74830439/list-of-color-names-for-matplotlib-style-tableau-colorblind10
+
         """
         plt.xlabel(r'$\tau$', size=14)
         plt.tick_params(labelsize = 'large',which='major')
-        plt.ylim(bottom=-0.4,top=1.4)
+        plt.ylim(bottom=-0.4,top=1.0)
         #plt.title('Protected att.:'+ticker[1]+' with '+ticker[0]+' constraint', fontsize=14)
         #plt.title(title)
-        plt.legend(prop={'size':14})
+        plt.legend(prop={'size':12}, loc = 'upper left', bbox_to_anchor=(0.23, 0.97))
+        #Adult: loc='upper right', bbox_to_anchor=(1, 0.73) #COMPAS: loc='upper left', bbox_to_anchor=(0.23, 0.97) #Student (sex and age): loc='upper right', bbox_to_anchor=(1, 0.85)
         plt.grid(visible=True)
+        #https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html#matplotlib.pyplot.legend
+        
+        plt.show()
+        """
+        
+        ax.tick_params(labelsize = 'large',which='major')
+        ax.set_ylim([-0.4,1.0])
+        ax.set_xlabel(r'$\tau$', size=14)
+        ax.grid(visible=True)
+        ax.legend(loc='best')        
 
         if(save) :
             plt.savefig(plot_file+'_'+ticker[1]+'_'+ticker[0]+".pdf", format="pdf", bbox_inches="tight")

@@ -12,7 +12,7 @@ def load_preproc_data_student(protected_attributes=None, sub_samp=False, balance
         #TODO transformer les yes et no en bouleen numérique
 
         def group_age(x):
-            if x <=18:
+            if x <=18: #Original version : x <=18
                 return 1.0
             else :
                 return 0.0
