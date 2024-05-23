@@ -1,4 +1,4 @@
-from ucimlrepo import fetch_ucirepo 
+from ucimlrepo import fetch_ucirepo, list_available_datasets
 import pandas as pd
 import dill
 import pickle
@@ -16,6 +16,8 @@ datasets = 'fairMetricsProject/DatasetsRaw/'
 from fairMetricsProject.dataset_custom.student_dataset import StudentDataset
 
 doPrint = False
+
+#list_available_datasets()
 
 # fetch dataset 
 student_performance = fetch_ucirepo(id=320)
@@ -72,7 +74,26 @@ print("success :"+ str(df_F[df_F['G3'] >= 10].shape))
 print("failure :"+ str(df_F[df_F['G3'] < 10].shape))
 
 
+print("--- failures by age ---")
+df_young = all[all['age'] < 18]
+print("shape young : "+ str(df_young.shape))
+for i in range(0,5) : #max number value 4 (for 4 or more failures)
+    print(str(i)+" failure(s) : "+ str(df_young[df_young['failures'] == i].shape))
 
+df_18 = select_attr(all,'age',18)
+print("shape 18 : "+ str(df_18.shape))
+for i in range(0,5) : #max number value 4 (for 4 or more failures)
+    print(str(i)+" failure(s) : "+ str(df_18[df_18['failures'] == i].shape))
+
+df_19 = select_attr(all,'age',19)
+print("shape 19 : "+ str(df_19.shape))
+for i in range(0,5) : #max number value 4 (for 4 or more failures)
+    print(str(i)+" failure(s) : "+ str(df_19[df_19['failures'] == i].shape))
+
+df_old = all[all['age'] > 18]
+print("shape old : "+ str(df_old.shape))
+for i in range(0,5) : #max number value 4 (for 4 or more failures)
+    print(str(i)+" failure(s) : "+ str(df_old[df_old['failures'] == i].shape))
 
 
 #student_performance.data.features.to_pickle(datasets+"student_features_df")
