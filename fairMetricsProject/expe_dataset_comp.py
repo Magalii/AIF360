@@ -29,8 +29,9 @@ from fairMetricsProject.dataset_custom.new_preproc_function import load_preproc_
 
 np.random.seed(12345)
 
-TRAIN = True
+TRAIN = False
 PLOT = True
+PLOT_STYLE = 'ERROR_BAR' #'SIMPLE_PLOT', 'FILLED_STDEV' or 'ERROR_BAR'
 SAVE_PLOT = True
 SHOW_PLOT = True
 TYPE = 'sr'
@@ -50,7 +51,7 @@ path_result = 'fairMetricsProject/Results/'
 #data_name = 'student'
 data_orig = load_preproc_data_student() #Custom preproc -> age binary
 #data_name = 'student_agebin'
-data_name = 'student_bin18_F1'
+data_name = 'student_bin17_649'
 
 if TRAIN :
   print("\n--- experiment ---\n")

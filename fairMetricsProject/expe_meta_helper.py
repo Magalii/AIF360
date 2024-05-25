@@ -130,9 +130,11 @@ def run_expe_meta(dataset_orig, folds, tau_range = tau_def, mitig_types = ['sr',
 
   return hp_results
 
-def plot_result(data_file, save = False, plot_file = None, display = True) :
+
+def plot_result(data_file, plot_style = 'ERROR_BAR', save = False, plot_file = None, display = True) :
     """
     file_name : file containing a dictionnary as returned by run_exp_meta
+    plot_style : 'SIMPLE_PLOT', 'FILLED_STDEV' or 'ERROR_BAR'
     """
     fd = open(data_file, 'rb')
     loaded_dict = pickle.load(fd)
@@ -165,8 +167,8 @@ def plot_result(data_file, save = False, plot_file = None, display = True) :
     final_results = pd.DataFrame(columns=metrics_list)
     #final_results_tau0 = pd.DataFrame(columns=cols) #TODO Why a different one for tau0 ?
 
-    case_study = data_file
     means = {}
+    std = {}
 
     tickers = [combo for combo in itertools.product(results_dict.keys(), results_dict[valid_mitig].keys())]
 
@@ -174,16 +176,16 @@ def plot_result(data_file, save = False, plot_file = None, display = True) :
 
         means_per_tau = pd.DataFrame(index=results_dict[valid_mitig][valid_s_attr][valid_metric].columns,
                                     columns = results_dict[valid_mitig][valid_s_attr].keys())
-        
-        #std_per_tau = ...
-        #Standard deviation here ?
-        #confidence interval has been computed in Python Notebooks/Results.ipynb
+        std_per_tau = pd.DataFrame(index=results_dict[valid_mitig][valid_s_attr][valid_metric].columns,
+                                    columns = results_dict[valid_mitig][valid_s_attr].keys())
 
         for metric in metrics_list:
             #print(metric, all_metrics[valid_mitig][valid_s_attr][metric].mean(axis=0), end = '')
             means_per_tau[metric] = results_dict[ticker[0]][ticker[1]][metric].mean(axis=0)
+            std_per_tau[metric] = results_dict[ticker[0]][ticker[1]][metric].std(ddof=0) #ddof = 0 takes the actual std_dev normalized over N instead of the corrected sample standard deviation that uses N − 1
 
         means[ticker] = means_per_tau
+        std[ticker] = std_per_tau
 
         #accuracies, statistical_rates, fdr, error_rate_ratio = means_per_tau['accuracy'].values, means_per_tau['DP'].values, means_per_tau['FDR'].values, means_per_tau['error_rate_ratio']
         all_tau = [float(tau[-3:]) for tau in means_per_tau.index.values]
@@ -191,45 +193,62 @@ def plot_result(data_file, save = False, plot_file = None, display = True) :
         fig, ax = plt.subplots(figsize=(8, 4))
         ax.hlines(0,0,1,colors='black')
 
-        # Use this block instead of the following one to automate plotting
+        # Use these blocks instead of the following one to automate plotting
         """
         #for metric in metrics_list :
           #if metric != "DP_ratio":
           #  plt.plot(all_tau,means_per_tau[metric],label = str(metric),linestyle="--",marker="o")
         plt.style.use('tableau-colorblind10')
         """
-
-        ax.plot(all_tau, means_per_tau['accuracy'], label = 'Accuracy', linestyle="--",marker="o", color='#ABABAB')##Dark gray
-        ax.plot(all_tau, means_per_tau['F1 score'], label = 'F1', linestyle="--",marker="o", color='#595959')##Dark gray
-        ax.plot(all_tau, means_per_tau['Consistency'], label = 'Consistency', linestyle="--",marker="^", color="#006BA4")#Cerulean/Blue
-        ax.plot(all_tau, means_per_tau['Eq. odds'], label = 'Eq. Odds', linestyle="--",marker="X", c='#C85200')#Tenne/Dark orange
-        ax.plot(all_tau, means_per_tau['Eq. opportunity'], label = 'Eq. Opp', linestyle="--",marker="d", c="#FF800E")#Pumpkin/Bright orange
-        ax.plot(all_tau, means_per_tau['Stat. parity'], label = 'SR', linestyle="--",marker="s", c="#A2C8EC")#Seil/Light blue
-        #'#FFBC79' Light orange/Mac and chesse '#898989'#Suva Grey/Light Gray '#ABABAB'#Dark gray '#595959'#Mortar/Darker Grey
-        #https://stackoverflow.com/questions/74830439/list-of-color-names-for-matplotlib-style-tableau-colorblind10
-
         """
-        plt.xlabel(r'$\tau$', size=14)
-        plt.tick_params(labelsize = 'large',which='major')
-        plt.ylim(bottom=-0.4,top=1.0)
-        #plt.title('Protected att.:'+ticker[1]+' with '+ticker[0]+' constraint', fontsize=14)
-        #plt.title(title)
-        plt.legend(prop={'size':12}, loc = 'upper left', bbox_to_anchor=(0.23, 0.97))
-        #Adult: loc='upper right', bbox_to_anchor=(1, 0.73) #COMPAS: loc='upper left', bbox_to_anchor=(0.23, 0.97) #Student (sex and age): loc='upper right', bbox_to_anchor=(1, 0.85)
-        plt.grid(visible=True)
-        #https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html#matplotlib.pyplot.legend
-        
-        plt.show()
+        for metric in metrics_list :
+          if metric != "DP_ratio":
+            ax.fill_between(all_tau, means_per_tau[metric] - std_per_tau[metric], means_per_tau[metric] + std_per_tau[metric], color='#888888', alpha=0.4)
+            ax.fill_between(all_tau, means_per_tau[metric] - 2*std_per_tau[metric], means_per_tau[metric] + 2*std_per_tau[metric], color='#888888', alpha=0.2)
         """
         
+        if plot_style == 'ERROR_BAR':
+          ax.errorbar(all_tau, means_per_tau['F1 score'], yerr=std_per_tau['F1 score'], capsize=4, capthick=1.5, label = 'F1', linestyle="--",marker="o", color='#595959')##Dark gray
+          ax.errorbar(all_tau, means_per_tau['accuracy'], yerr=std_per_tau['accuracy'], capsize=4, capthick=1.5, label = 'Accuracy', linestyle="--",marker="o", color='#ABABAB')
+          ax.errorbar(all_tau, means_per_tau['Consistency'], yerr=std_per_tau['Consistency'], capsize=4, capthick=1.5, label = 'Consistency', linestyle="--",marker="^", color="#006BA4")#Cerulean/Blue
+          ax.errorbar(all_tau, means_per_tau['Eq. odds'], yerr=std_per_tau['Eq. odds'], capsize=4, capthick=1.5, label = 'Eq. Odds', linestyle="--",marker="X", c='#C85200')#Tenne/Dark orange
+          ax.errorbar(all_tau, means_per_tau['Eq. opportunity'], yerr=std_per_tau['Eq. opportunity'], capsize=4, capthick=1.5, label = 'Eq. Opp', linestyle="--",marker="d", c="#FF800E")#Pumpkin/Bright orange
+          ax.errorbar(all_tau, means_per_tau['Stat. parity'], yerr=std_per_tau['Stat. parity'], capsize=4,capthick=1.5, label = 'SR', linestyle="--",marker="s", c="#A2C8EC")#Seil/Light blue
+        else :
+          #Mean values
+          ax.plot(all_tau, means_per_tau['accuracy'], label = 'Accuracy', linestyle="--",marker="o", color='#ABABAB')##Dark gray
+          #ax.fill_between(trees_grid, test_acc.mean(axis=1) - 2*test_acc.std(axis=1), test_acc.mean(axis=1) + 2*test_acc.std(axis=1), color='#888888', alpha=0.2)
+          ax.plot(all_tau, means_per_tau['F1 score'], label = 'F1', linestyle="--",marker="o", color='#595959')##Dark gray
+          ax.plot(all_tau, means_per_tau['Consistency'], label = 'Consistency', linestyle="--",marker="^", color="#006BA4")#Cerulean/Blue
+          ax.plot(all_tau, means_per_tau['Eq. odds'], label = 'Eq. Odds', linestyle="--",marker="X", c='#C85200')#Tenne/Dark orange
+          ax.plot(all_tau, means_per_tau['Eq. opportunity'], label = 'Eq. Opp', linestyle="--",marker="d", c="#FF800E")#Pumpkin/Bright orange
+          ax.plot(all_tau, means_per_tau['Stat. parity'], label = 'SR', linestyle="--",marker="s", c="#A2C8EC")#Seil/Light blue
+          #'#FFBC79' Light orange/Mac and chesse '#898989'#Suva Grey/Light Gray '#ABABAB'#Dark gray '#595959'#Mortar/Darker Grey
+          #https://stackoverflow.com/questions/74830439/list-of-color-names-for-matplotlib-style-tableau-colorblind10
+          
+          if plot_style == 'FILLED_STDEV':
+            #Shade for std values
+            ax.fill_between(all_tau, means_per_tau['accuracy'] - std_per_tau['accuracy'], means_per_tau['accuracy'] + std_per_tau['accuracy'], color='#ABABAB', alpha=0.4)
+            ax.fill_between(all_tau, means_per_tau['accuracy'] - 2*std_per_tau['accuracy'], means_per_tau['accuracy'] + 2*std_per_tau['accuracy'], color='#ABABAB', alpha=0.2)
+            ax.fill_between(all_tau, means_per_tau['F1 score'] - std_per_tau['F1 score'], means_per_tau['F1 score'] + std_per_tau['F1 score'], color='#595959', alpha=0.4)
+            ax.fill_between(all_tau, means_per_tau['Consistency'] - std_per_tau['Consistency'], means_per_tau['Consistency'] + std_per_tau['Consistency'], color='#006BA4', alpha=0.4)
+            ax.fill_between(all_tau, means_per_tau['Eq. odds'] - std_per_tau['Eq. odds'], means_per_tau['Eq. odds'] + std_per_tau['Eq. odds'], color='#C85200', alpha=0.4)
+            ax.fill_between(all_tau, means_per_tau['Eq. opportunity'] - std_per_tau['Eq. opportunity'], means_per_tau['Eq. opportunity'] + std_per_tau['Eq. opportunity'], color='#FF800E', alpha=0.4)
+            ax.fill_between(all_tau, means_per_tau['Stat. parity'] - std_per_tau['Stat. parity'], means_per_tau['Stat. parity'] + std_per_tau['Stat. parity'], color='#A2C8EC', alpha=0.4)
+
         ax.tick_params(labelsize = 'large',which='major')
         ax.set_ylim([-0.4,1.0])
         ax.set_xlabel(r'$\tau$', size=14)
         ax.grid(visible=True)
-        ax.legend(loc='best')        
+        ax.legend(loc='best')
+
+        #plt.title('Protected att.:'+ticker[1]+' with '+ticker[0]+' constraint', fontsize=14)
+        plt.legend(prop={'size':12}, loc = 'upper left', bbox_to_anchor=(0.23, 0.97))
+        #Adult: loc='upper right', bbox_to_anchor=(1, 0.73) #COMPAS: loc='upper left', bbox_to_anchor=(0.23, 0.97) #Student (sex and age): loc='upper right', bbox_to_anchor=(1, 0.85)
+        #https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html#matplotlib.pyplot.legend
 
         if(save) :
-            plt.savefig(plot_file+'_'+ticker[1]+'_'+ticker[0]+".pdf", format="pdf", bbox_inches="tight")
+            plt.savefig(plot_file+'_'+ticker[1]+'_'+ticker[0]+'_'+plot_style+".pdf", format="pdf", bbox_inches="tight")
         #plt.suptitle('Accuracy and metrics for '+case_study+' with '+str(folds)+'fold cross-validation', y=0.95, fontsize='xx-large', fontweight='bold')
         if(display) :
             plt.show()
