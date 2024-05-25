@@ -29,9 +29,9 @@ from fairMetricsProject.dataset_custom.new_preproc_function import load_preproc_
 
 np.random.seed(12345)
 
-TRAIN = False
+TRAIN = True
 PLOT = True
-PLOT_STYLE = 'ERROR_BAR' #'SIMPLE_PLOT', 'FILLED_STDEV' or 'ERROR_BAR'
+PLOT_STYLE = 'FILLED_STDEV' #'SIMPLE_PLOT', 'FILLED_STDEV' or 'ERROR_BAR'
 SAVE_PLOT = True
 SHOW_PLOT = True
 TYPE = 'sr'
@@ -43,15 +43,14 @@ TYPE = 'sr'
 path_datasets = 'fairMetricsProject/DatasetsRaw/'
 path_result = 'fairMetricsProject/Results/'
 
-#data_orig = load_custom_adult(path=path_datasets)
-#data_name = 'adult'
+data_orig = load_custom_adult(path=path_datasets)
+data_name = 'adult'
 #data_orig = load_custom_compas(path=path_datasets)
 #data_name = 'compas'
-#data_orig = StudentDataset() #Standard preproc -> age numerical
+#data_orig = StudentDataset() #Standard preproc -> age numerical ###WARNING### Value of sample size for bias mitigation shouldn't exceed 649 (total dataset size)
 #data_name = 'student'
-data_orig = load_preproc_data_student() #Custom preproc -> age binary
-#data_name = 'student_agebin'
-data_name = 'student_bin17_649'
+#data_orig = load_preproc_data_student() #Custom preproc -> age binary ###WARNING### Value of sample size for bias mitigation shouldn't exceed 649 (total dataset size)
+#data_name = 'student_bin17_649'
 
 if TRAIN :
   print("\n--- experiment ---\n")
@@ -66,6 +65,6 @@ if TRAIN :
 if PLOT :
   file_res_student = path_result+'expe_comp_'+data_name+'_'+TYPE+'.pkl'
   file_plot = path_result + '/Plots/plot_'+data_name
-  plot_result(file_res_student,save = SAVE_PLOT, plot_file = file_plot, display = SHOW_PLOT)
+  plot_result(file_res_student,plot_style=PLOT_STYLE, save = SAVE_PLOT, plot_file = file_plot, display = SHOW_PLOT)
 
 #print(data_orig)

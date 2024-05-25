@@ -131,10 +131,13 @@ def run_expe_meta(dataset_orig, folds, tau_range = tau_def, mitig_types = ['sr',
   return hp_results
 
 
-def plot_result(data_file, plot_style = 'ERROR_BAR', save = False, plot_file = None, display = True) :
+def plot_result(data_file, plot_style = 'SIMPLE_PLOT', save = False, plot_file = None, display = True) :
     """
     file_name : file containing a dictionnary as returned by run_exp_meta
     plot_style : 'SIMPLE_PLOT', 'FILLED_STDEV' or 'ERROR_BAR'
+                'SIMPLE_PLOT' for no display of standard deviation
+                'FILLED_STDEV' for display of standard deviation as colored area arround the curve
+                'ERROR_BAR' for display of standard deviation as error bars
     """
     fd = open(data_file, 'rb')
     loaded_dict = pickle.load(fd)
@@ -208,18 +211,18 @@ def plot_result(data_file, plot_style = 'ERROR_BAR', save = False, plot_file = N
         """
         
         if plot_style == 'ERROR_BAR':
+          ax.errorbar(all_tau, means_per_tau['Consistency'], yerr=std_per_tau['Consistency'], capsize=4, capthick=1.5, label = 'Consistency', linestyle="--",marker="^", color="#006BA4")#Cerulean/Blue
           ax.errorbar(all_tau, means_per_tau['F1 score'], yerr=std_per_tau['F1 score'], capsize=4, capthick=1.5, label = 'F1', linestyle="--",marker="o", color='#595959')##Dark gray
           ax.errorbar(all_tau, means_per_tau['accuracy'], yerr=std_per_tau['accuracy'], capsize=4, capthick=1.5, label = 'Accuracy', linestyle="--",marker="o", color='#ABABAB')
-          ax.errorbar(all_tau, means_per_tau['Consistency'], yerr=std_per_tau['Consistency'], capsize=4, capthick=1.5, label = 'Consistency', linestyle="--",marker="^", color="#006BA4")#Cerulean/Blue
           ax.errorbar(all_tau, means_per_tau['Eq. odds'], yerr=std_per_tau['Eq. odds'], capsize=4, capthick=1.5, label = 'Eq. Odds', linestyle="--",marker="X", c='#C85200')#Tenne/Dark orange
           ax.errorbar(all_tau, means_per_tau['Eq. opportunity'], yerr=std_per_tau['Eq. opportunity'], capsize=4, capthick=1.5, label = 'Eq. Opp', linestyle="--",marker="d", c="#FF800E")#Pumpkin/Bright orange
           ax.errorbar(all_tau, means_per_tau['Stat. parity'], yerr=std_per_tau['Stat. parity'], capsize=4,capthick=1.5, label = 'SR', linestyle="--",marker="s", c="#A2C8EC")#Seil/Light blue
         else :
           #Mean values
+          ax.plot(all_tau, means_per_tau['Consistency'], label = 'Consistency', linestyle="--",marker="^", color="#006BA4")#Cerulean/Blue
           ax.plot(all_tau, means_per_tau['accuracy'], label = 'Accuracy', linestyle="--",marker="o", color='#ABABAB')##Dark gray
           #ax.fill_between(trees_grid, test_acc.mean(axis=1) - 2*test_acc.std(axis=1), test_acc.mean(axis=1) + 2*test_acc.std(axis=1), color='#888888', alpha=0.2)
           ax.plot(all_tau, means_per_tau['F1 score'], label = 'F1', linestyle="--",marker="o", color='#595959')##Dark gray
-          ax.plot(all_tau, means_per_tau['Consistency'], label = 'Consistency', linestyle="--",marker="^", color="#006BA4")#Cerulean/Blue
           ax.plot(all_tau, means_per_tau['Eq. odds'], label = 'Eq. Odds', linestyle="--",marker="X", c='#C85200')#Tenne/Dark orange
           ax.plot(all_tau, means_per_tau['Eq. opportunity'], label = 'Eq. Opp', linestyle="--",marker="d", c="#FF800E")#Pumpkin/Bright orange
           ax.plot(all_tau, means_per_tau['Stat. parity'], label = 'SR', linestyle="--",marker="s", c="#A2C8EC")#Seil/Light blue
@@ -228,10 +231,10 @@ def plot_result(data_file, plot_style = 'ERROR_BAR', save = False, plot_file = N
           
           if plot_style == 'FILLED_STDEV':
             #Shade for std values
-            ax.fill_between(all_tau, means_per_tau['accuracy'] - std_per_tau['accuracy'], means_per_tau['accuracy'] + std_per_tau['accuracy'], color='#ABABAB', alpha=0.4)
-            ax.fill_between(all_tau, means_per_tau['accuracy'] - 2*std_per_tau['accuracy'], means_per_tau['accuracy'] + 2*std_per_tau['accuracy'], color='#ABABAB', alpha=0.2)
-            ax.fill_between(all_tau, means_per_tau['F1 score'] - std_per_tau['F1 score'], means_per_tau['F1 score'] + std_per_tau['F1 score'], color='#595959', alpha=0.4)
             ax.fill_between(all_tau, means_per_tau['Consistency'] - std_per_tau['Consistency'], means_per_tau['Consistency'] + std_per_tau['Consistency'], color='#006BA4', alpha=0.4)
+            ax.fill_between(all_tau, means_per_tau['accuracy'] - std_per_tau['accuracy'], means_per_tau['accuracy'] + std_per_tau['accuracy'], color='#ABABAB', alpha=0.4)
+            #ax.fill_between(all_tau, means_per_tau['accuracy'] - 2*std_per_tau['accuracy'], means_per_tau['accuracy'] + 2*std_per_tau['accuracy'], color='#ABABAB', alpha=0.2)
+            ax.fill_between(all_tau, means_per_tau['F1 score'] - std_per_tau['F1 score'], means_per_tau['F1 score'] + std_per_tau['F1 score'], color='#595959', alpha=0.4)
             ax.fill_between(all_tau, means_per_tau['Eq. odds'] - std_per_tau['Eq. odds'], means_per_tau['Eq. odds'] + std_per_tau['Eq. odds'], color='#C85200', alpha=0.4)
             ax.fill_between(all_tau, means_per_tau['Eq. opportunity'] - std_per_tau['Eq. opportunity'], means_per_tau['Eq. opportunity'] + std_per_tau['Eq. opportunity'], color='#FF800E', alpha=0.4)
             ax.fill_between(all_tau, means_per_tau['Stat. parity'] - std_per_tau['Stat. parity'], means_per_tau['Stat. parity'] + std_per_tau['Stat. parity'], color='#A2C8EC', alpha=0.4)
