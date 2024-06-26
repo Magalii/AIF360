@@ -169,6 +169,7 @@ def plot_result(data_file, plot_style = 'SIMPLE_PLOT', save = False, plot_file =
     metrics_list = results_dict[mitig][s_attr].keys()
     final_results = pd.DataFrame(columns=metrics_list)
     #final_results_tau0 = pd.DataFrame(columns=cols) #TODO Why a different one for tau0 ?
+    print(results_dict[mitig][s_attr]['Eq. opportunity'])
 
     means = {}
     std = {}
@@ -193,7 +194,7 @@ def plot_result(data_file, plot_style = 'SIMPLE_PLOT', save = False, plot_file =
         #accuracies, statistical_rates, fdr, error_rate_ratio = means_per_tau['accuracy'].values, means_per_tau['DP'].values, means_per_tau['FDR'].values, means_per_tau['error_rate_ratio']
         all_tau = [float(tau[-3:]) for tau in means_per_tau.index.values]
 
-        fig, ax = plt.subplots(figsize=(8, 4))
+        fig, ax = plt.subplots() # (figsize=(8, 4))
         ax.hlines(0,0,1,colors='black')
 
         # Use these blocks instead of the following one to automate plotting
@@ -221,37 +222,38 @@ def plot_result(data_file, plot_style = 'SIMPLE_PLOT', save = False, plot_file =
           #Mean values
           ax.plot(all_tau, means_per_tau['Consistency'], label = 'Consistency', linestyle="--",marker="^", color="#006BA4")#Cerulean/Blue
           ax.plot(all_tau, means_per_tau['accuracy'], label = 'Accuracy', linestyle="--",marker="o", color='#ABABAB')##Dark gray
+          ax.plot(all_tau, means_per_tau['F1 score'], label = 'F1 score', linestyle="--",marker="o", color='#595959')##Dark gray
           #ax.fill_between(trees_grid, test_acc.mean(axis=1) - 2*test_acc.std(axis=1), test_acc.mean(axis=1) + 2*test_acc.std(axis=1), color='#888888', alpha=0.2)
-          ax.plot(all_tau, means_per_tau['F1 score'], label = 'F1', linestyle="--",marker="o", color='#595959')##Dark gray
           ax.plot(all_tau, means_per_tau['Eq. odds'], label = 'Eq. Odds', linestyle="--",marker="X", c='#C85200')#Tenne/Dark orange
           ax.plot(all_tau, means_per_tau['Eq. opportunity'], label = 'Eq. Opp', linestyle="--",marker="d", c="#FF800E")#Pumpkin/Bright orange
           ax.plot(all_tau, means_per_tau['Stat. parity'], label = 'SR', linestyle="--",marker="s", c="#A2C8EC")#Seil/Light blue
+          
           #'#FFBC79' Light orange/Mac and chesse '#898989'#Suva Grey/Light Gray '#ABABAB'#Dark gray '#595959'#Mortar/Darker Grey
           #https://stackoverflow.com/questions/74830439/list-of-color-names-for-matplotlib-style-tableau-colorblind10
           
           if plot_style == 'FILLED_STDEV':
             #Shade for std values
-            ax.fill_between(all_tau, means_per_tau['Consistency'] - std_per_tau['Consistency'], means_per_tau['Consistency'] + std_per_tau['Consistency'], color='#006BA4', alpha=0.4)
-            ax.fill_between(all_tau, means_per_tau['accuracy'] - std_per_tau['accuracy'], means_per_tau['accuracy'] + std_per_tau['accuracy'], color='#ABABAB', alpha=0.4)
-            #ax.fill_between(all_tau, means_per_tau['accuracy'] - 2*std_per_tau['accuracy'], means_per_tau['accuracy'] + 2*std_per_tau['accuracy'], color='#ABABAB', alpha=0.2)
-            ax.fill_between(all_tau, means_per_tau['F1 score'] - std_per_tau['F1 score'], means_per_tau['F1 score'] + std_per_tau['F1 score'], color='#595959', alpha=0.4)
-            ax.fill_between(all_tau, means_per_tau['Eq. odds'] - std_per_tau['Eq. odds'], means_per_tau['Eq. odds'] + std_per_tau['Eq. odds'], color='#C85200', alpha=0.4)
-            ax.fill_between(all_tau, means_per_tau['Eq. opportunity'] - std_per_tau['Eq. opportunity'], means_per_tau['Eq. opportunity'] + std_per_tau['Eq. opportunity'], color='#FF800E', alpha=0.4)
-            ax.fill_between(all_tau, means_per_tau['Stat. parity'] - std_per_tau['Stat. parity'], means_per_tau['Stat. parity'] + std_per_tau['Stat. parity'], color='#A2C8EC', alpha=0.4)
+            ax.fill_between(all_tau, means_per_tau['Consistency'] - std_per_tau['Consistency'], means_per_tau['Consistency'] + std_per_tau['Consistency'], edgecolor = None, facecolor='#006BA4', alpha=0.4)
+            ax.fill_between(all_tau, means_per_tau['accuracy'] - std_per_tau['accuracy'], means_per_tau['accuracy'] + std_per_tau['accuracy'], edgecolor = None, facecolor='#ABABAB', alpha=0.4)
+            #ax.fill_between(all_tau, means_per_tau['accuracy'] - 2*std_per_tau['accuracy'], means_per_tau['accuracy'] + 2*std_per_tau['accuracy'], edgecolor = None, facecolor='#ABABAB', alpha=0.2)
+            ax.fill_between(all_tau, means_per_tau['F1 score'] - std_per_tau['F1 score'], means_per_tau['F1 score'] + std_per_tau['F1 score'], edgecolor = None, facecolor='#595959', alpha=0.4)
+            ax.fill_between(all_tau, means_per_tau['Eq. odds'] - std_per_tau['Eq. odds'], means_per_tau['Eq. odds'] + std_per_tau['Eq. odds'], edgecolor = None, facecolor='#C85200', alpha=0.4)
+            ax.fill_between(all_tau, means_per_tau['Eq. opportunity'] - std_per_tau['Eq. opportunity'], means_per_tau['Eq. opportunity'] + std_per_tau['Eq. opportunity'], edgecolor = None, facecolor='#FF800E', alpha=0.4)
+            ax.fill_between(all_tau, means_per_tau['Stat. parity'] - std_per_tau['Stat. parity'], means_per_tau['Stat. parity'] + std_per_tau['Stat. parity'], edgecolor = None, facecolor='#A2C8EC', alpha=0.4)
 
         ax.tick_params(labelsize = 'large',which='major')
-        ax.set_ylim([-0.4,1.0])
+        ax.set_ylim([-0.2,1.0])
         ax.set_xlabel(r'$\tau$', size=14)
         ax.grid(visible=True)
-        ax.legend(loc='best')
-
+        #ax.legend(loc='best')
+        ax.legend(prop={'size':10}, loc='upper right',  bbox_to_anchor=(1, 0.87))
+        #Adult: loc='upper right', bbox_to_anchor=(1, 0.78) #COMPAS: loc = 'center', bbox_to_anchor=(0.42, 0.47) #Student (sex and age): loc='upper right', bbox_to_anchor=(1, 0.87)
         #plt.title('Protected att.:'+ticker[1]+' with '+ticker[0]+' constraint', fontsize=14)
-        plt.legend(prop={'size':12}, loc = 'upper left', bbox_to_anchor=(0.23, 0.97))
-        #Adult: loc='upper right', bbox_to_anchor=(1, 0.73) #COMPAS: loc='upper left', bbox_to_anchor=(0.23, 0.97) #Student (sex and age): loc='upper right', bbox_to_anchor=(1, 0.85)
+        
         #https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html#matplotlib.pyplot.legend
 
         if(save) :
-            plt.savefig(plot_file+'_'+ticker[1]+'_'+ticker[0]+'_'+plot_style+".pdf", format="pdf", bbox_inches="tight")
+            plt.savefig(plot_file+'_'+ticker[1]+'_'+ticker[0]+'_'+plot_style+".pdf", format="pdf", bbox_inches="tight", dpi=1000) #dpi changes image quality
         #plt.suptitle('Accuracy and metrics for '+case_study+' with '+str(folds)+'fold cross-validation', y=0.95, fontsize='xx-large', fontweight='bold')
         if(display) :
             plt.show()
