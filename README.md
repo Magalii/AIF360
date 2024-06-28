@@ -1,3 +1,43 @@
+# Exploration of potential new benchmark for fairness evaluation in Europe
+
+This git branch contains the experiments presented in the paper "Exploration of potential new benchmark for fairness evaluation in Europe" presented at EWAF 2024 by Magali Legast, Yasaman Yousefi, Lisa Koutsoviti Koumeri and Axel Legay.
+
+The code for the experiment can be found in the folder [....].
+The other folder and files have been forked from the original [...] repository.
+
+See the 3rd edition of the European Workshop on Algorithm Fairness : https://2024.ewaf.org/
+
+The corresponding author for this project is Magali Legast (magali.legast@uclouvain.be).
+
+## Experiment
+
+The experiment can be launched by running the file [...]/expe_dataset_comp.py as a Python script with no attribute.
+The default setting trains models with Student performance dataset (Portuguese subject) and protected attribute "sex". The results of the 10 folds are saved in a pickle document in folder 'Result' and the corresponding plot is displayed and saved in 'Result/Plots'.
+
+The experiment settings can be changed in [...]/expe_dataset_comp.py.
+You can select the dataset the experiment will be performed on. The different datasets and sensitive attributes available are the following :
+- Adult
+  * sensitive attribute "sex" with women as the protected group and men as the privileged group 
+  * sensitive attribute "race" with "" as the protected group and "" as the privileged group 
+- COMPAS
+  * sensitive attribute "sex" with men as the protected group and women as the privileged group 
+  * sensitive attribute "race" with "" as the protected group and "" as the privileged group 
+- Student performance (Portuguese subject) with attribute age kept numerical (standard preprocessing)
+  * sensitive attribute "sex" with girls as the protected group and boys as the privileged group
+- Student performance (Portuguese subject) with age binarized (custom preprocessing)
+  * sensitive attribute "sex" with girls as the protected group and boys as the privileged group
+  * sensitive attribute "age" with students 18 and older as the protected group and students younger than 18 as the privileged group
+
+
+### Notes
+
+Our experiment doesn't use AIF360 as a pre-installed Python module, but calls the function within the fork of the project. It is thus not necessary to instal the aif360 module to run it.
+This choice allows to make relevant changes to the module's impementation. Namely, we have modified the size of the sample used during the in-processing bias mitigation process to increase its value, see line 106 in file 'aif360/algorithms/inprocessing/celisMeta/General.py'.
+
+
+
+
+
 # AI Fairness 360 (AIF360)
 
 [![Continuous Integration](https://github.com/Trusted-AI/AIF360/actions/workflows/ci.yml/badge.svg)](https://github.com/Trusted-AI/AIF360/actions/workflows/ci.yml)

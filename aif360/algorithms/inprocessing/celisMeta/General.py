@@ -103,8 +103,9 @@ class General(ABC):
 
         if tau != 0:
             for a, b in self.range(eps, tau): #2. T <- /tau/eps\. For each a_i <- (i-1)*eps and b_i <- i*eps/tau
-                samples = dist_x.rvs(size=1000) # TODO: why 20?  #Draw random samples from the multivariate normal distribution based on features
-                                                # increasing sample size reduces standard variation and increases mean in accuracy (by reducing events of bad accuracy)
+                samples = dist_x.rvs(size=454) #Draw random samples from the multivariate normal distribution based on features
+                    # Note : Original size set in aif360 is 20 , but increasing sample size reduces standard variation and increases mean in accuracy (by reducing events of bad accuracy)
+                                                
                 params = self.gradientDescent(dist, a, b, samples, z_1)
 
                 t = self.getValueForX(dist, a, b, params, z_1, X) #Probably impact for ratio instead of difference

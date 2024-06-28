@@ -1,15 +1,7 @@
-#import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 import pickle
 
-"""
-from sklearn import metrics
-from sklearn.model_selection import train_test_split, GridSearchCV
-from sklearn.feature_selection import SelectKBest
-from sklearn.metrics import roc_auc_score, classification_report, make_scorer, accuracy_score, precision_recall_fscore_support as score
-from sklearn.metrics import pair_confusion_matrix
-"""
 from sklearn.preprocessing import MaxAbsScaler
 from sklearn.ensemble import RandomForestClassifier
 
@@ -29,30 +21,46 @@ from fairMetricsProject.dataset_custom.new_preproc_function import load_preproc_
 
 np.random.seed(12345)
 
-TRAIN = True
-PLOT = True
-PLOT_STYLE = 'FILLED_STDEV' #'SIMPLE_PLOT', 'FILLED_STDEV' or 'ERROR_BAR'
-SAVE_PLOT = True
-SHOW_PLOT = True
-TYPE = 'sr'
+#################################
+## GENERAL EXPERIMENT SETTINGS ##
+#################################
 
-################
-## Experiment ##
-################
-#print("\n--- data ---\n")
+TRAIN = True #Whether the models will be (re)trained and metrics (re)computed (true) or not (false)
+PLOT = True #Whether to generate plot(s) of the results (true) or not (false)
+PLOT_STYLE = 'FILLED_STDEV' #'SIMPLE_PLOT', 'ERROR_BAR' or 'FILLED_STDEV'
+#'SIMPLE_PLOT' for no representation of standard deviation, 'ERROR_BAR' for standard dev. represented as error bars, 'FILLED_STDEV' for standard representation as filled areas
+SAVE_PLOT = True #Whether or not the plot(s) will be saved (as a pdf in 'Result/Plots')
+SHOW_PLOT = True #Whether or not the plot(s) will be displayed once the computation is done
+TYPE = 'sr' #choice fairness metric to be considered as the fairness constraint. 'sr' for Statistical Rate, 'fdr' for False Discovery Rate. Only 'sr' has been used in our experiment, but fdr is also supported by the MetaFairClassifier class
+
 path_datasets = 'fairMetricsProject/DatasetsRaw/'
 path_result = 'fairMetricsProject/Results/'
 
-data_orig = load_custom_adult(path=path_datasets)
-data_name = 'adult'
+######################
+## DATASET SETTINGS ##
+######################
+
+# Here uncomment the dataset to be used for training and/or for which the results should be displayed
+# 'data_name' is used in the name files to be saved or retrieved from disk (pickle of results and plot images)
+
+#data_orig = load_custom_adult(path=path_datasets) #experiment will be run for Adult with 
+#data_name = 'adult'
 #data_orig = load_custom_compas(path=path_datasets)
 #data_name = 'compas'
-#data_orig = StudentDataset() #Standard preproc -> age numerical ###WARNING### Value of sample size for bias mitigation shouldn't exceed 649 (total dataset size)
-#data_name = 'student'
-#data_orig = load_preproc_data_student() #Custom preproc -> age binary ###WARNING### Value of sample size for bias mitigation shouldn't exceed 649 (total dataset size)
-#data_name = 'student_bin17_649'
+# Note : for Adult and COMPAS, we performed the experiment using a train sample size of 1000 during in-processing bias-mitigation (see line 106 in file aif360/algorithms/inprocessing/celisMeta/General.py)
+
+data_orig = StudentDataset() #Standard preproc -> 'age' is kept as numerical, sensitive attribute is 'sex'
+data_name = 'student'
+#data_orig = load_preproc_data_student() #Custom preproc -> age is binarized, sensitive attributes are 'sex' and 'age'
+#data_name = 'student_bin17_454'
+# Note : Value of sample size for in-processing bias mitigation shouldn't exceed 454, which is the train set size (see line 106 in file aif360/algorithms/inprocessing/celisMeta/General.py)
+
+#######################
+## LAUNCH EXPERIMENT ##
+#######################
 
 if TRAIN :
+  #Run experiment and save results as pickle file
   print("\n--- experiment ---\n")
   taus = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
   #taus =  [0.0, 0.3, 0.8]
@@ -63,8 +71,7 @@ if TRAIN :
       pickle.dump(results, f)
 
 if PLOT :
+  #Retrieve results from pickle file and plot them
   file_res_student = path_result+'expe_comp_'+data_name+'_'+TYPE+'.pkl'
   file_plot = path_result + '/Plots/plot_'+data_name
   plot_result(file_res_student,plot_style=PLOT_STYLE, save = SAVE_PLOT, plot_file = file_plot, display = SHOW_PLOT)
-
-#print(data_orig)

@@ -20,7 +20,7 @@ def run_expe_meta(dataset_orig, folds, tau_range = tau_def, mitig_types = ['sr',
     dataset_orig : aif360 dataset type, result of load_preproc_data_[name]
     folds  : int, number of fold
     tau_range : List, all value of tau (minimal value allowed for fairness measure) to be considered
-    mitigation_types : List, fairness metric(s) that should be considered as for the fairness constraint. 'sr' for Statistical Rate, 'fdr' for False Discovery Rate
+    mitigation_types : List, fairness metric(s) that should be considered as the fairness constraint. 'sr' for Statistical Rate, 'fdr' for False Discovery Rate
   """
   #results = {}
   #results['info'] = {'dataset' : dataset_orig.metadata}
@@ -242,7 +242,7 @@ def plot_result(data_file, plot_style = 'SIMPLE_PLOT', save = False, plot_file =
             ax.fill_between(all_tau, means_per_tau['Stat. parity'] - std_per_tau['Stat. parity'], means_per_tau['Stat. parity'] + std_per_tau['Stat. parity'], edgecolor = None, facecolor='#A2C8EC', alpha=0.4)
 
         ax.tick_params(labelsize = 'large',which='major')
-        ax.set_ylim([-0.2,1.0])
+        ax.set_ylim([-0.4,1.0])
         ax.set_xlabel(r'$\tau$', size=14)
         ax.grid(visible=True)
         #ax.legend(loc='best')
