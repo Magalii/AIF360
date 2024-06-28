@@ -13,14 +13,14 @@ from sklearn.metrics import f1_score
 tau_def = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
 mitig_def = ['sr', 'fdr']
 
-#def run_metaclassifier_crossval(folds, dataset_orig, Rs = [], metadata = [], mitigation_types = ['sr', 'fdr']):
 def run_expe_meta(dataset_orig, folds, tau_range = tau_def, mitig_types = ['sr', 'fdr']):
   """
-  folds  : int, number of fold
-  dataset_orig : aif360 dataset type result of load_preproc_data_[name]
-  Rs : List with strings
-  metadata : our own metadata, similar to aif360 #TODO check if it is the same
-  mitigation_types : List
+  Compute several models using the MetaFairClassifier meta-algorithm using dataset_orig divided in train and split as well as the fairness and performance metric of each model
+  Args :
+    dataset_orig : aif360 dataset type, result of load_preproc_data_[name]
+    folds  : int, number of fold
+    tau_range : List, all value of tau (minimal value allowed for fairness measure) to be considered
+    mitigation_types : List, fairness metric(s) that should be considered as for the fairness constraint. 'sr' for Statistical Rate, 'fdr' for False Discovery Rate
   """
   #results = {}
   #results['info'] = {'dataset' : dataset_orig.metadata}
@@ -247,13 +247,13 @@ def plot_result(data_file, plot_style = 'SIMPLE_PLOT', save = False, plot_file =
         ax.grid(visible=True)
         #ax.legend(loc='best')
         ax.legend(prop={'size':10}, loc='upper right',  bbox_to_anchor=(1, 0.87))
-        #Adult: loc='upper right', bbox_to_anchor=(1, 0.78) #COMPAS: loc = 'center', bbox_to_anchor=(0.42, 0.47) #Student (sex and age): loc='upper right', bbox_to_anchor=(1, 0.87)
-        #plt.title('Protected att.:'+ticker[1]+' with '+ticker[0]+' constraint', fontsize=14)
-        
         #https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.legend.html#matplotlib.pyplot.legend
+        #Good position dor legends : Adult: loc='upper right', bbox_to_anchor=(1, 0.78) #COMPAS: loc = 'center', bbox_to_anchor=(0.42, 0.47) #Student (sex and age): loc='upper right', bbox_to_anchor=(1, 0.87)
+        #plt.title('Protected att.:'+ticker[1]+' with '+ticker[0]+' constraint', fontsize=14)
+        #plt.suptitle('Accuracy and metrics for '+case_study+' with '+str(folds)+'fold cross-validation', y=0.95, fontsize='xx-large', fontweight='bold')
 
         if(save) :
-            plt.savefig(plot_file+'_'+ticker[1]+'_'+ticker[0]+'_'+plot_style+".pdf", format="pdf", bbox_inches="tight", dpi=1000) #dpi changes image quality
-        #plt.suptitle('Accuracy and metrics for '+case_study+' with '+str(folds)+'fold cross-validation', y=0.95, fontsize='xx-large', fontweight='bold')
+            plt.savefig(plot_file+'_'+ticker[1]+'_'+ticker[0]+'_'+plot_style+".pdf", format="pdf", bbox_inches="tight") # dpi=1000) #dpi changes image quality
         if(display) :
+            
             plt.show()
