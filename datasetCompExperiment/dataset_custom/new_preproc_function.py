@@ -4,6 +4,7 @@ from datasetCompExperiment.dataset_custom.student_dataset import StudentDataset
 """
     Functions to load datasets using aif360 standard way of loading datasets
     #TODO those functions are meant to be added to aif360 later on
+    Written by Magali Legast
 """
 
 
@@ -12,7 +13,7 @@ def load_preproc_data_student(protected_attributes=None, sub_samp=False, balance
         #TODO transformer les yes et no en bouleen numérique
 
         def group_age(x):
-            if x <=18: #Original version : x <=18
+            if x <18: #This choice is consistent with other previous works. Using x <= 18 gives different results
                 return 1.0
             else :
                 return 0.0
@@ -26,7 +27,7 @@ def load_preproc_data_student(protected_attributes=None, sub_samp=False, balance
 
     # protected attribute maps
     all_protected_attribute_maps = {"sex": {1.0: 'M', 0.0: 'F'},
-                                    "age": {1.0: '<=18', 0.0: '>18'}}    
+                                    "age": {1.0: '<18', 0.0: '>=18'}}
 
     metadata_preproc = {'label_maps': [{1.0: 'pass', 0.0: 'fail'}], 
                         'protected_attribute_maps': [all_protected_attribute_maps[x]

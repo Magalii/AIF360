@@ -1,47 +1,36 @@
 import pandas as pd
 
 from aif360.datasets import StandardDataset
-#from ucimlrepo import fetch_ucirepo 
 
 import sys 
 sys.path.append('../parent_aif360')
 datasets = 'datasetCompExperiment/DatasetsRaw/'
 
-#df_student_features = pd.read_pickle(datasets+"student_features_df")
-#df_student_targets = pd.read_pickle(datasets+"student_targets_df")
-#df_student_all = pd.read_pickle(datasets+"student_df")
-
 default_mappings = {
-    'label_maps': [{1.0: 'pass', 0.0: 'fail'}],  #TODO check if it works
-    'protected_attribute_maps': [{1.0: 'female', 0.0: 'male'},
-                                 {1.0: '<=18', 0.0: '>18'}] #'sex'
-                                 #{blablabla}] #'age', numerical from 15 to 22 -> TODO see if it has been binarized
+    'label_maps': [{1.0: 'pass', 0.0: 'fail'}],
+    'protected_attribute_maps': [{1.0: 'male', 0.0: 'female'}]
 }
-{"sex": {1.0: 'M', 0.0: 'F'},
-                                    "age": {1.0: '<=18', 0.0: '>18'}}    
+# default dataset has only 'sex' as protected attribute. To study 'age', you should load the dataset with "load_preproc_data_student"
 
 class StudentDataset(StandardDataset):
-    """Student Performance UCI dataset
+    """Student Performance UCI dataset (Portuguese subject) : Written by Magali Legast to be compatible with aif360 format
         uci repo dataset with id=320
-    See https://archive.ics.uci.edu/dataset/320/student+performance
-    or http://fairnessdata.dei.unipd.it
+        See https://archive.ics.uci.edu/dataset/320/student+performance
+        or http://fairnessdata.dei.unipd.it
     """
 
     def __init__(self, label_name='G3',
-                 favorable_classes= (lambda n: n>=10), #lambda function #TODO makes sure it works
-                 protected_attribute_names=['sex'], #TODO add age after binarizing it
+                 favorable_classes= (lambda n: n>=10),
+                 protected_attribute_names=['sex'],
                  privileged_classes=[['M']],
                  instance_weights_name=None,
                  categorical_features=['school','address','Pstatus', 'Mjob', 'Fjob', 'guardian', 'famsize', 'reason','schoolsup','famsup','activities','paid','internet','nursery','higher','romantic'],
-                 features_to_keep=[], features_to_drop=[],#['G1','G2']
+                 features_to_keep=[], features_to_drop=[], #['G1','G2'] #G1 and G2 are previous grades. Removing those attributes increases the difficulty of the prediction task
                  na_values=[], custom_preprocessing=None,
                  metadata=default_mappings):
-        #See :obj:`StandardDataset` for a description of the arguments.
+        #See :obj:`StandardDataset` for a description of the arguments
 
-        #example for Compas
-        #filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'raw', 'compas', 'compas-scores-two-years.csv')
-        
-        filepath = 'datasetCompExperiment/DatasetsRaw/student_df' #TODO make it more portable by using os.path.dirname
+        filepath = 'datasetCompExperiment/DatasetsRaw/student_df'
 
         try:
             df = pd.read_pickle(filepath)
@@ -52,10 +41,7 @@ class StudentDataset(StandardDataset):
                 df = student_performance.data.original
             except ModuleNotFoundError :
                 print("ModuleNotFoundError: {}".format(err))
-                print("") #TODO make it cleaner with good message
                 sys.exit(1)
-
-        #print("StudentDataset: df loaded \n",df,"\n")
 
         super(StudentDataset, self).__init__(df=df, label_name=label_name,
             favorable_classes=favorable_classes,

@@ -4,7 +4,7 @@ from datasetCompExperiment.dataset_custom.compas_custom import CompasCustom
 from datasetCompExperiment.dataset_custom.adult_custom import AdultCustom
 
 """
-    Functions to load datasets with our custom classes
+    Functions to load Adult and COMPAS datasets with our custom classes
 """
 
 def load_custom_compas(label_name='two_year_recid', protected_attributes=None, path=None):
