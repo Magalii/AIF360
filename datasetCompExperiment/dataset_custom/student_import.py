@@ -11,9 +11,9 @@ import pickle
 
 import sys 
 sys.path.append('../parent_aif360')
-datasets = 'fairMetricsProject/DatasetsRaw/'
+datasets = 'datasetCompExperiment/DatasetsRaw/'
 
-from fairMetricsProject.dataset_custom.student_dataset import StudentDataset
+from datasetCompExperiment.dataset_custom.student_dataset import StudentDataset
 
 doPrint = False
 

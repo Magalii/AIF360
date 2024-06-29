@@ -5,7 +5,7 @@ from aif360.datasets import StandardDataset
 
 import sys 
 sys.path.append('../parent_aif360')
-datasets = 'fairMetricsProject/DatasetsRaw/'
+datasets = 'datasetCompExperiment/DatasetsRaw/'
 
 #df_student_features = pd.read_pickle(datasets+"student_features_df")
 #df_student_targets = pd.read_pickle(datasets+"student_targets_df")
@@ -41,7 +41,7 @@ class StudentDataset(StandardDataset):
         #example for Compas
         #filepath = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'data', 'raw', 'compas', 'compas-scores-two-years.csv')
         
-        filepath = 'fairMetricsProject/DatasetsRaw/student_df' #TODO make it more portable by using os.path.dirname
+        filepath = 'datasetCompExperiment/DatasetsRaw/student_df' #TODO make it more portable by using os.path.dirname
 
         try:
             df = pd.read_pickle(filepath)

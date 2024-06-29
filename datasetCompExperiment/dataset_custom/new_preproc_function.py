@@ -1,4 +1,4 @@
-from fairMetricsProject.dataset_custom.student_dataset import StudentDataset
+from datasetCompExperiment.dataset_custom.student_dataset import StudentDataset
 
 
 """

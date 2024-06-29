@@ -28,11 +28,11 @@ aif360/sklearn/data/
 .Rproj.user
 
 #ProjectMetricsFiles to exclude
-fairMetricsProject/Results/*.pkl
-fairMetricsProject/Results/Plots/*
-fairMetricsProject/*.ipynb
-fairMetricsProject/Lisa/*
-fairMetricsProject/draft_test.py
-fairMetricsProject/draft_meta_test.py
-fairMetricsProject/experiment_ICAIL.py
-fairMetricsProject/python_memo.md
+datasetCompExperiment/Results/*.pkl
+datasetCompExperiment/Results/Plots/*
+datasetCompExperiment/*.ipynb
+datasetCompExperiment/Lisa/*
+datasetCompExperiment/draft_test.py
+datasetCompExperiment/draft_meta_test.py
+datasetCompExperiment/experiment_ICAIL.py
+datasetCompExperiment/python_memo.md

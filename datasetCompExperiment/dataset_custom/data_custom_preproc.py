@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
-from fairMetricsProject.dataset_custom.compas_custom import CompasCustom
-from fairMetricsProject.dataset_custom.adult_custom import AdultCustom
+from datasetCompExperiment.dataset_custom.compas_custom import CompasCustom
+from datasetCompExperiment.dataset_custom.adult_custom import AdultCustom
 
 """
     Functions to load datasets with our custom classes

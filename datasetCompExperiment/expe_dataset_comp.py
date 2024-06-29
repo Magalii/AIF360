@@ -11,12 +11,12 @@ from aif360.algorithms.inprocessing import MetaFairClassifier
 from aif360.metrics.classification_metric import ClassificationMetric
 from aif360.metrics.binary_label_dataset_metric import BinaryLabelDatasetMetric
 
-#import from within fairMetricsProject
-from fairMetricsProject.dataset_custom.data_custom_preproc import load_custom_compas, load_custom_adult
-from fairMetricsProject.dataset_custom.student_dataset import StudentDataset
-from fairMetricsProject.expe_meta_helper import run_expe_meta
-from fairMetricsProject.expe_meta_helper import plot_result
-from fairMetricsProject.dataset_custom.new_preproc_function import load_preproc_data_student
+#import from within datasetCompExperiment
+from datasetCompExperiment.dataset_custom.data_custom_preproc import load_custom_compas, load_custom_adult
+from datasetCompExperiment.dataset_custom.student_dataset import StudentDataset
+from datasetCompExperiment.expe_meta_helper import run_expe_meta
+from datasetCompExperiment.expe_meta_helper import plot_result
+from datasetCompExperiment.dataset_custom.new_preproc_function import load_preproc_data_student
 
 
 np.random.seed(12345)
@@ -33,8 +33,8 @@ SAVE_PLOT = True #Whether or not the plot(s) will be saved (as a pdf in 'Result/
 SHOW_PLOT = True #Whether or not the plot(s) will be displayed once the computation is done
 TYPE = 'sr' #choice fairness metric to be considered as the fairness constraint. 'sr' for Statistical Rate, 'fdr' for False Discovery Rate. Only 'sr' has been used in our experiment, but fdr is also supported by the MetaFairClassifier class
 
-path_datasets = 'fairMetricsProject/DatasetsRaw/'
-path_result = 'fairMetricsProject/Results/'
+path_datasets = 'datasetCompExperiment/DatasetsRaw/'
+path_result = 'datasetCompExperiment/Results/'
 
 ####################
 ## DATASET CHOICE ##
