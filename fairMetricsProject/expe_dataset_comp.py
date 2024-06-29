@@ -36,23 +36,23 @@ TYPE = 'sr' #choice fairness metric to be considered as the fairness constraint.
 path_datasets = 'fairMetricsProject/DatasetsRaw/'
 path_result = 'fairMetricsProject/Results/'
 
-######################
-## DATASET SETTINGS ##
-######################
+####################
+## DATASET CHOICE ##
+####################
 
-# Here uncomment the dataset to be used for training and/or for which the results should be displayed
-# 'data_name' is used in the name files to be saved or retrieved from disk (pickle of results and plot images)
+# Uncomment here the dataset to be used for training and/or for which the results should be displayed
+# 'data_name' is used in the name of files to be saved or retrieved from disk (pickle of results and plot files)
 
-#data_orig = load_custom_adult(path=path_datasets) #experiment will be run for Adult with 
+#data_orig = load_custom_adult(path=path_datasets) #Adult with sensitive attributes 'sex' and 'race'
 #data_name = 'adult'
-#data_orig = load_custom_compas(path=path_datasets)
+#data_orig = load_custom_compas(path=path_datasets) #COMPAS with sensitive attributes 'sex' and 'race'
 #data_name = 'compas'
 # Note : for Adult and COMPAS, we performed the experiment using a train sample size of 1000 during in-processing bias-mitigation (see line 106 in file aif360/algorithms/inprocessing/celisMeta/General.py)
 
 data_orig = StudentDataset() #Standard preproc -> 'age' is kept as numerical, sensitive attribute is 'sex'
 data_name = 'student'
 #data_orig = load_preproc_data_student() #Custom preproc -> age is binarized, sensitive attributes are 'sex' and 'age'
-#data_name = 'student_bin17_454'
+#data_name = 'student_bin17'
 # Note : Value of sample size for in-processing bias mitigation shouldn't exceed 454, which is the train set size (see line 106 in file aif360/algorithms/inprocessing/celisMeta/General.py)
 
 #######################

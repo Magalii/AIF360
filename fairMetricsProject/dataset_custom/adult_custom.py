@@ -1,5 +1,3 @@
-import os
-
 import pandas as pd
 
 from aif360.datasets.standard_dataset import StandardDataset
@@ -12,7 +10,7 @@ default_mappings = {
 }
 
 class AdultCustom(StandardDataset):
-    """Adult Census Income Dataset. Adapted from aif360 by Lisa KK
+    """Adult Census Income Dataset. Adapted from aif360 by Lisa Koutsoviti Koumeri
     """
 
     def __init__(self, path, label_name='income-per-year',
@@ -66,11 +64,6 @@ class AdultCustom(StandardDataset):
             used for more descriptive visualizations.
         """
 
-        #Commented by Lisa
-        #train_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-        #                          '..', 'data', 'raw', 'adult', 'adult.data')
-        #test_path = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-        #                          '..', 'data', 'raw', 'adult', 'adult.test')
         # as given by adult.names
         column_names = ['age', 'workclass', 'fnlwgt', 'education',
             'education-num', 'marital-status', 'occupation', 'relationship',

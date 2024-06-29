@@ -18,7 +18,7 @@ def default_preprocessing(df):
 
 class CompasCustom(StandardDataset):
     """
-    Custom version of Compas Dataset by Lisa KK, close to that of aif360
+    Custom version of Compas Dataset by Lisa Koutsoviti Koumeri, close to that of aif360
     """
 
     def __init__(self, path, label_name='two_year_recid', favorable_classes=['No recid.','No recid.'],
