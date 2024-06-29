@@ -18,6 +18,9 @@ from datasetCompExperiment.expe_meta_helper import run_expe_meta
 from datasetCompExperiment.expe_meta_helper import plot_result
 from datasetCompExperiment.dataset_custom.new_preproc_function import load_preproc_data_student
 
+"""
+    This code has been written by Magali Legast and Lisa Koutsoviti Koumeri
+"""
 
 np.random.seed(12345)
 
