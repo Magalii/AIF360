@@ -25,10 +25,10 @@ def run_expe_meta(dataset_orig, folds, tau_range = tau_def, mitig_types = ['sr',
   There is a model computed for each mitigation type, each sensitive attribute, each fold and each tau value.
   Models are trained using in-processing mitigation algorithm by Celis et. al. which optimises accuracy while enforcing a fairness constraint represented as the minimal value ('tau') allowed for a chosen fairness metric. (see paper https://arxiv.org/abs/1806.06055)
   Args :
-    dataset_orig : aif360 dataset type, result of load_preproc_data_[name]
-    folds  : int, number of folds to be computed
-    tau_range : List, all values of tau (minimal value allowed for fairness measure) for which a model should be computed
-    mitigation_types : List, fairness metric(s) that should be considered gor the fairness constraint. 'sr' for Statistical Rate, 'fdr' for False Discovery Rate
+    dataset_orig (StandardDataset): , result of load_preproc_data_[name]
+    folds (int): number of folds to be computed
+    tau_range (List, optional): all values of tau (minimal value allowed for fairness measure) for which a model should be computed
+    mitigation_types (List, optional): fairness metric(s) that should be considered gor the fairness constraint. 'sr' for Statistical Rate, 'fdr' for False Discovery Rate
   Return : Dictionary containing the values of each fairness and performance metrics for each model
   """
   
@@ -123,14 +123,14 @@ def plot_result(data_file, plot_style = 'SIMPLE_PLOT', save = False, plot_file =
     """
     Plots the results as a graph
     Args :
-      data_file : string, path of pickle file containing a dictionnary of the results as returned by run_exp_meta
-      plot_style : string, must be 'SIMPLE_PLOT', 'FILLED_STDEV' or 'ERROR_BAR'
+      data_file (string): path of pickle file containing a dictionnary of the results as returned by run_exp_meta
+      plot_style (string, optional): must be 'SIMPLE_PLOT', 'FILLED_STDEV' or 'ERROR_BAR'
                 'SIMPLE_PLOT' for no display of standard deviation
                 'FILLED_STDEV' for display of standard deviation as colored area arround the curve
                 'ERROR_BAR' for display of standard deviation as error bars
-      save : boolean, whether the file should be saved (True) or not (False)
-      plot_file : string, path of file in which image should be saved if 'save' is true
-      display : boolean, whether the plot should be displayed once the computation is done
+      save (boolean, optional): whether the file should be saved (True) or not (False)
+      plot_file (string, optional): path of file in which image should be saved if 'save' is true
+      display (boolean, optional): whether the plot should be displayed once the computation is done
     """
     fd = open(data_file, 'rb')
     loaded_dict = pickle.load(fd)
@@ -234,5 +234,4 @@ def plot_result(data_file, plot_style = 'SIMPLE_PLOT', save = False, plot_file =
         if(save) :
             plt.savefig(plot_file+'_'+ticker[1]+'_'+ticker[0]+'_'+plot_style+".pdf", format="pdf", bbox_inches="tight") # dpi=1000) #dpi changes image quality
         if(display) :
-            
             plt.show()
