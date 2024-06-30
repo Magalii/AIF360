@@ -2,8 +2,8 @@
 
 This git branch contains the experiments presented in the paper "Exploration of potential new benchmark for fairness evaluation in Europe" presented at EWAF 2024 by Magali Legast, Yasaman Yousefi, Lisa Koutsoviti Koumeri and Axel Legay.
 
-The code for the experiment can be found in the folder [....].
-The other folder and files have been forked from the original [...] repository.
+The code for the experiment can be found in the folder 'datasetCompExperiment'.
+The other folder and files have been forked from the original AIF360 repository.
 
 See the 3rd edition of the European Workshop on Algorithm Fairness : https://2024.ewaf.org/
 
@@ -13,10 +13,10 @@ The code of the experiment has been written by Lisa Koutsoviti Koumeri and Magal
 
 ## Experiment
 
-The experiment can be launched by running the file [...]/expe_dataset_comp.py as a Python script with no attribute.
+The experiment can be launched by running the file 'datasetCompExperiment/expe_dataset_comp.py' as a Python script with no attribute.
 The default setting trains models with Student performance dataset (Portuguese subject) and protected attribute "sex". The results of the 10 folds are saved in a pickle document in folder 'Results' and the corresponding plot is displayed and saved in 'Results/Plots'.
 
-The experiment settings can be changed in [...]/expe_dataset_comp.py.
+The experiment settings can be changed in datasetCompExperiment/expe_dataset_comp.py.
 You can select the dataset the experiment will be performed on. The different datasets and sensitive attributes available are the following :
 - Adult
   * sensitive attribute "sex" with women as the protected group and men as the privileged group 
