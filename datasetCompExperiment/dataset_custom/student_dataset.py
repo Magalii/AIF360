@@ -13,7 +13,7 @@ default_mappings = {
 # default dataset has only 'sex' as protected attribute. To study 'age', you should load the dataset with "load_preproc_data_student"
 
 class StudentDataset(StandardDataset):
-    """Student Performance UCI dataset (Portuguese subject) : Written by Magali Legast to be compatible with aif360 format
+    """Student Performance UCI dataset (Portuguese subject), written by Magali Legast to be compatible with aif360 format
         uci repo dataset with id=320
         See https://archive.ics.uci.edu/dataset/320/student+performance
         or http://fairnessdata.dei.unipd.it

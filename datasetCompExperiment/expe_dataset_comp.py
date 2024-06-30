@@ -7,9 +7,9 @@ from sklearn.ensemble import RandomForestClassifier
 
 import sys 
 sys.path.append('../parent_aif360/')
-from aif360.algorithms.inprocessing import MetaFairClassifier
-from aif360.metrics.classification_metric import ClassificationMetric
-from aif360.metrics.binary_label_dataset_metric import BinaryLabelDatasetMetric
+#from aif360.algorithms.inprocessing import MetaFairClassifier
+#from aif360.metrics.classification_metric import ClassificationMetric
+#from aif360.metrics.binary_label_dataset_metric import BinaryLabelDatasetMetric
 
 #import from within datasetCompExperiment
 from datasetCompExperiment.dataset_custom.data_custom_preproc import load_custom_compas, load_custom_adult
